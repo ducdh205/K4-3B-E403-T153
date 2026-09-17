@@ -4,14 +4,14 @@
 
 ## 👥 Thành viên nhóm & Phân công vai trò
 
-**Lớp:** 3B · **Phòng:** ____ · **Cụm:** ____ · **Track:** ____
+**Lớp:** 3B · **Phòng:** E403 · **Cụm:** Zone 5 · **Track:** C
 
 | Họ và Tên | Mã Học Viên | Vai trò chính | Phần việc đảm nhiệm trong dự án |
 |---|---|---|---|
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
-|  |  |  |  |
+| Hoàng Đức Minh | 2A202602362 | Team Lead | Viết canvas/spec, điều phối nhóm và theo dõi tiến độ các mốc CP1-CP5 |
+| Nguyễn Văn Tứ | 2A202602586 | Khảo sát & Evidence | Tạo form, phỏng vấn giảng viên/lab coach, mining transcript/slide và ghi log bằng chứng |
+| Đinh Hoàng Đức | 2A202602795 | Data & Evaluation | Thiết kế schema graph, gắn provenance, xây dựng golden set và tiêu chí đánh giá quiz |
+| Nguyễn Quang Huy | 2A202602461 | Prototype & Demo | Xây dựng prototype, tích hợp lời gọi AI thật, làm luồng duyệt quiz và chuẩn bị demo |
 
 > Nhóm copy nguyên file README này về repo của mình, rồi điền bảng trên. Cột **Phần việc đảm nhiệm** ghi càng cụ thể càng tốt.
 
