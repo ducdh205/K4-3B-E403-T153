@@ -1,10 +1,11 @@
 import React from 'react';
-import { BookOpen, UserCheck, User, Settings, Sun, Moon, Sparkles } from 'lucide-react';
+import { BookOpen, UserCheck, User, Settings, Sun, Moon, Sparkles, FlaskConical } from 'lucide-react';
 
 export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, onNavigateHome }) {
   const menuItems = [
     { id: 'review', label: 'Ôn tập thích ứng', icon: BookOpen },
     { id: 'teacher', label: 'Giảng viên Studio', icon: UserCheck },
+    { id: 'eval', label: 'Kiểm thử 20 Testcase', icon: FlaskConical },
     { id: 'account', label: 'Tài khoản', icon: User },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];

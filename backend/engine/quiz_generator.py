@@ -7,12 +7,12 @@ from typing import List, Dict, Any, Optional
 # ==============================================================================
 QUIZ_GENERATOR_SYSTEM_PROMPT = """
 BẠN LÀ AI.GRAPH ENGINE — CHUYÊN GIA SƯ PHẠM VÀ THIẾT KẾ ĐỀ THI ĐÁNH GIÁ NĂNG LỰC SẢN PHẨM AI.
-NHIỆM VỤ: Chuyển đổi nội dung kiến thức từ Trang bài giảng thành bộ câu hỏi trắc nghiệm tình huống đời thường để kiểm tra học viên.
+NHIỆM VỤ: Chuyển đổi nội dung kiến thức từ Slide bài giảng thành bộ câu hỏi trắc nghiệm tình huống đời thường để kiểm tra học viên.
 
 QUY TẮC RÀNG BUỘC CỐT LÕI (BẮT BUỘC TUÂN THỦ 100%):
 1. RANH GIỚI BÀI DẠY (HARD BOUNDARY ENFORCEMENT):
-   - Chỉ được sinh câu hỏi dựa trên các Kiến thức nằm trong phạm vi Giảng viên đã dạy (ví dụ: Trang 1 - 10).
-   - TUYỆT ĐỐI KHÔNG sinh câu hỏi từ các Trang bị chặn (Trang > 10). Không vượt quá thẩm quyền kiến thức đã dạy.
+   - Chỉ được sinh câu hỏi dựa trên các Slide nằm trong phạm vi Giảng viên đã dạy (ví dụ: Slide 1 - 10).
+   - TUYỆT ĐỐI KHÔNG sinh câu hỏi từ các slide bị chặn (Slide > 10). Không vượt quá thẩm quyền kiến thức đã dạy.
 
 2. NGUỒN SỰ THẬT & TRÍCH DẪN (PROVENANCE - SINGLE SOURCE OF TRUTH):
    - Mọi câu hỏi, đáp án và lời giải thích BẮT BUỘC phải truy vết được về tài liệu gốc: đính kèm mã trích dẫn dạng `[DEMO-NNN]` và `Slide Trang X`.
@@ -41,13 +41,13 @@ class QuizGenerator:
 
     def _call_gemini_llm(self, in_scope_concepts: List[Dict[str, Any]], max_slide: int) -> Optional[List[Dict[str, Any]]]:
         """
-        Gọi Google Gemini API (gemini-1.5-flash) nếu có API Key.
+        Gọi Google Gemini API (gemini-3-flash-preview) với API Key thật.
         """
         if not self.api_key or self.api_key.strip() == "":
             return None
 
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.api_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={self.api_key}"
             concepts_text = json.dumps([{
                 "slide_page": c.get("slide_page"),
                 "concept": c.get("label"),
@@ -58,17 +58,17 @@ class QuizGenerator:
             prompt = f"""Dựa vào các concepts trong phạm vi bài dạy (Slide 1 đến {max_slide}) sau đây:
 {concepts_text}
 
-Hãy sinh danh sách câu hỏi trắc nghiệm tình huống đời thường tương ứng với từng concept.
-Trả về định dạng JSON là một mảng các object với các trường:
+Hãy sinh danh sách 10 câu hỏi trắc nghiệm tình huống đời thường tương ứng với từng concept.
+Trả về định dạng JSON thuần túy (không thêm markdown backtick thừa) là một mảng:
 [
   {{
     "id": "Q01",
     "slide_page": 1,
-    "core_concept": "tên concept",
-    "question": "nội dung tình huống đời thường",
+    "core_concept": "Tên concept",
+    "question": "Nội dung tình huống đời thường gần gũi",
     "options": ["A", "B", "C", "D"],
     "correct_index": 0,
-    "explanation": "giải thích và căn cứ trích dẫn",
+    "explanation": "Giải thích căn cứ",
     "citation_code": "DEMO-001"
   }}
 ]
@@ -81,20 +81,23 @@ Trả về định dạng JSON là một mảng các object với các trường
                     {"parts": [{"text": prompt}]}
                 ],
                 "generationConfig": {
-                    "response_mime_type": "application/json",
                     "temperature": 0.2
                 }
             }
-            resp = requests.post(url, json=payload, timeout=10)
+            resp = requests.post(url, json=payload, timeout=30)
             if resp.status_code == 200:
                 result_json = resp.json()
-                text_out = result_json["candidates"][0]["content"]["parts"][0]["text"]
-                parsed_questions = json.loads(text_out)
-                if isinstance(parsed_questions, list) and len(parsed_questions) > 0:
-                    print(f"[GEMINI API] Đã sinh thành công {len(parsed_questions)} câu hỏi từ Gemini 1.5 Flash bằng API Key!")
-                    return parsed_questions
+                text_out = result_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                if text_out.startswith("```"):
+                    text_out = text_out.split("```")[1]
+                    if text_out.startswith("json"):
+                        text_out = text_out[4:].strip()
+                parsed = json.loads(text_out)
+                if isinstance(parsed, list) and len(parsed) > 0:
+                    print(f"[GEMINI API THÀNH CÔNG] Đã sinh {len(parsed)} câu hỏi trực tiếp từ Gemini 3 Flash với API Key thật!")
+                    return parsed
         except Exception as e:
-            print(f"[GEMINI API NOTICE] Không thể kết nối Gemini API ({e}). Tự động sử dụng bộ câu hỏi tình huống chuẩn.")
+            print(f"[GEMINI API THÔNG BÁO] Chuyển fallback bộ câu hỏi chuẩn: {e}")
         return None
 
     def generate_draft_quiz(self, knowledge_graph: Dict[str, Any]) -> Dict[str, Any]:
@@ -109,14 +112,14 @@ Trả về định dạng JSON là một mảng các object với các trường
         constraints = knowledge_graph.get("constraints_applied", {})
         max_slide = constraints.get("max_slide", 10)
 
-        # Thử gọi Gemini LLM nếu có API Key
-        llm_questions = self._call_gemini_llm(in_scope_concepts, max_slide)
-        if llm_questions:
-            formatted_llm_q = []
-            for idx, q in enumerate(llm_questions, 1):
+        # Thử gọi Google Gemini LLM
+        gemini_res = self._call_gemini_llm(in_scope_concepts, max_slide)
+        if gemini_res:
+            formatted_gemini_q = []
+            for idx, q in enumerate(gemini_res, 1):
                 p_num = q.get("slide_page", idx)
                 c_code = q.get("citation_code", f"DEMO-{p_num:03d}")
-                formatted_llm_q.append({
+                formatted_gemini_q.append({
                     "id": f"Q{idx:02d}",
                     "question_index": idx,
                     "question": q.get("question"),
@@ -132,12 +135,12 @@ Trả về định dạng JSON là một mảng các object với các trường
                     "reviewed": False
                 })
             return {
-                "quiz_title": "Bộ Câu Hỏi Đánh Giá Tư Duy Sản Phẩm AI (Sinh bởi Gemini 1.5 Flash)",
-                "total_questions": len(formatted_llm_q),
+                "quiz_title": "Bộ Câu Hỏi Đánh Giá Tư Duy Sản Phẩm AI (Sinh từ Google Gemini 3 Flash)",
+                "total_questions": len(formatted_gemini_q),
                 "allowed_max_slide": max_slide,
                 "status": "PENDING_LECTURER_REVIEW",
                 "provenance_verified": True,
-                "questions": formatted_llm_q
+                "questions": formatted_gemini_q
             }
 
         questions = []
@@ -223,9 +226,9 @@ Trả về định dạng JSON là một mảng các object với các trường
                 "is_core": True
             },
             7: {
-                "question": "Giảng viên ghi chú: 'Buổi 1 mới dạy xong Trang 1 - 10'. Nếu hệ thống AI sinh câu hỏi về 'Kỹ thuật LoRA Fine-tuning' (nằm ở Slide 11), điều này vi phạm nguyên tắc gì?",
+                "question": "Giảng viên ghi chú: 'Buổi 1 mới dạy xong Slide 1 - 10'. Nếu hệ thống AI sinh câu hỏi về 'Kỹ thuật LoRA Fine-tuning' (nằm ở Slide 11), điều này vi phạm nguyên tắc gì?",
                 "options": [
-                    "Vi phạm bản quyền Trang của tác giả",
+                    "Vi phạm bản quyền slide của tác giả",
                     "Vi phạm ràng buộc phạm vi bài dạy (Knowledge Boundary Constraints), đặt câu hỏi vượt kiến thức thực tế đã dạy",
                     "Vi phạm tiêu chuẩn thẩm mỹ giao diện người dùng",
                     "Không vi phạm vì câu hỏi càng khó càng tốt"
@@ -236,7 +239,7 @@ Trả về định dạng JSON là một mảng các object với các trường
                 "is_core": True
             },
             8: {
-                "question": "Vì sao mọi câu hỏi trắc nghiệm do AI sinh ra trong hệ thống BẮT BUỘC phải đính kèm trích dẫn mã DEMO-NNN và số trang?",
+                "question": "Vì sao mọi câu hỏi trắc nghiệm do AI sinh ra trong hệ thống BẮT BUỘC phải đính kèm trích dẫn mã DEMO-NNN và số trang Slide?",
                 "options": [
                     "Để trang trí cho câu hỏi dài hơn và chuyên nghiệp hơn",
                     "Đảm bảo 100% tính truy vết nguồn (Provenance), giúp giảng viên kiểm duyệt nhanh và bảo đảm không có kiến thức bịa",

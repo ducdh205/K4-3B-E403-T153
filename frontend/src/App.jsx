@@ -11,6 +11,7 @@ import QuizPracticeView from './components/views/QuizPracticeView';
 import FlashcardView from './components/views/FlashcardView';
 import ScorecardReviewView from './components/views/ScorecardReviewView';
 import TeacherStudio from './components/TeacherStudio';
+import EvalRunnerView from './components/views/EvalRunnerView';
 import AddSubjectModal from './components/modals/AddSubjectModal';
 import AddExerciseModal from './components/modals/AddExerciseModal';
 import SoundEffects from './components/SoundEffects';
@@ -409,6 +410,11 @@ export default function App() {
                     setActiveWorkflowStep('step_quiz');
                   }}
                 />
+              )}
+
+              {/* TAB EVAL: KIỂM THỬ 20 TESTCASE */}
+              {currentTab === 'eval' && (
+                <EvalRunnerView theme={theme} />
               )}
 
               {/* TAB 2: ÔN TẬP THÍCH ỨNG (GIAI ĐOẠN 2: Làm Quiz -> Phân loại -> Gỡ rối -> Mastery) */}

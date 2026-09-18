@@ -21,5 +21,187 @@
       "total": 7,
       "passed": 7
     }
-  }
+  },
+  "cases": [
+    {
+      "id": "CASE-01",
+      "layer": "① Nguồn sự thật",
+      "scenario": "Trích dẫn nguồn chuẩn xác Slide 1",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Trích dẫn thu được: ['[DEMO-001]']",
+      "pass_criteria": "Mã trích dẫn phải khớp chính xác DEMO-001 và Slide 1"
+    },
+    {
+      "id": "CASE-02",
+      "layer": "① Nguồn sự thật",
+      "scenario": "Trích dẫn nguồn chuẩn xác Slide 2 JTBD",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Trích dẫn thu được: ['[DEMO-002]']",
+      "pass_criteria": "Mã trích dẫn phải khớp chính xác DEMO-002"
+    },
+    {
+      "id": "CASE-03",
+      "layer": "① Nguồn sự thật",
+      "scenario": "Trích dẫn chuẩn Bảng bằng chứng Slide 3",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Trích dẫn thu được: ['[DEMO-003]']",
+      "pass_criteria": "Mã trích dẫn phải khớp DEMO-003"
+    },
+    {
+      "id": "CASE-04",
+      "layer": "① Nguồn sự thật",
+      "scenario": "Trích dẫn Lát cắt một câu Slide 4",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Trích dẫn thu được: ['[DEMO-004]']",
+      "pass_criteria": "Mã trích dẫn phải khớp DEMO-004"
+    },
+    {
+      "id": "CASE-05",
+      "layer": "① Nguồn sự thật",
+      "scenario": "Phát hiện thông tin bịa đặt không có trong tài liệu",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Hệ thống xác định thông tin không có căn cứ và loại trừ",
+      "pass_criteria": "Hệ thống từ chối claim không có trong tài liệu slide"
+    },
+    {
+      "id": "CASE-06",
+      "layer": "② Mơ hồ / Thiếu thông tin",
+      "scenario": "Giảng viên chỉ nhập 'Tạo quiz' mà không ghi số slide",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Fallback max_slide = 10",
+      "pass_criteria": "Hệ thống áp dụng giới hạn an toàn mặc định Slide 1 - 10"
+    },
+    {
+      "id": "CASE-07",
+      "layer": "② Mơ hồ / Thiếu thông tin",
+      "scenario": "Học viên bỏ trống câu trả lời khi nộp bài",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Bỏ trống bị đánh dấu 10 câu cần ôn tập",
+      "pass_criteria": "Hệ thống ghi nhận câu chưa làm và đưa vào danh sách cần gỡ rối"
+    },
+    {
+      "id": "CASE-08",
+      "layer": "③ Ngoài phạm vi / Thẩm quyền",
+      "scenario": "Giảng viên ghi 'Mới dạy Slide 1-10', yêu cầu chặn Slide 11",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Slide 11 đã bị đưa vào danh sách BLOCKED",
+      "pass_criteria": "Khái niệm Slide 11 bị chặn 100%, không xuất hiện trong Quiz"
+    },
+    {
+      "id": "CASE-09",
+      "layer": "③ Ngoài phạm vi / Thẩm quyền",
+      "scenario": "Chặn câu hỏi về Vector DB HNSW thuộc Slide 13",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Slide 13 Vector DB đã bị chặn thành công",
+      "pass_criteria": "Khái niệm Slide 13 bị chặn 100%"
+    },
+    {
+      "id": "CASE-10",
+      "layer": "③ Ngoài phạm vi / Thẩm quyền",
+      "scenario": "Chặn câu hỏi về Đa tác tử LangGraph thuộc Slide 14",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Slide 14 LangGraph đã bị chặn thành công",
+      "pass_criteria": "Khái niệm Slide 14 bị chặn 100%"
+    },
+    {
+      "id": "CASE-11",
+      "layer": "③ Ngoài phạm vi / Thẩm quyền",
+      "scenario": "Hệ thống tự động phát hành Quiz mà chưa có giảng viên duyệt",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Trạng thái khởi tạo: PENDING_LECTURER_REVIEW (bắt buộc Human review)",
+      "pass_criteria": "Hệ thống cấm phát hành nếu chưa có xác nhận của Giảng viên"
+    },
+    {
+      "id": "CASE-12",
+      "layer": "④ Đặc thù domain",
+      "scenario": "Chống trùng lặp tuyệt đối giữa Quiz ôn tập và Quiz ban đầu",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Tình huống Q01 (Anh Nam) và RETRY_Q01 (Chị Mai) khác nhau 100%",
+      "pass_criteria": "Nội dung câu hỏi ôn tập là tình huống mới toanh 100%, không trùng câu chữ với Q01"
+    },
+    {
+      "id": "CASE-13",
+      "layer": "④ Đặc thù domain",
+      "scenario": "Chống trùng lặp câu hỏi Slide 2 JTBD",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Tình huống Q02 (trạm sạc xe điện) và RETRY_Q02 (dịch vụ giặt là) khác nhau 100%",
+      "pass_criteria": "Tình huống mới 100% về giặt là khác hoàn toàn tình huống ban đầu về trạm sạc điện"
+    },
+    {
+      "id": "CASE-14",
+      "layer": "④ Đặc thù domain",
+      "scenario": "Ngôn ngữ giải thích lỗi sai phải thuần Việt và gần gũi",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Đoạn giải thích đời thường: 'Bí kíp nằm ở đây: Khách hàng mua mũi khoan 8 ly không phải v...'",
+      "pass_criteria": "Giải thích sử dụng ví dụ đời thường ('chiếc đinh và cái búa', 'mũi khoan 8 ly')"
+    },
+    {
+      "id": "CASE-15",
+      "layer": "④ Đặc thù domain",
+      "scenario": "Đúng 100% cốt lõi phải kích hoạt đủ 2 lựa chọn đi tiếp",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Số lựa chọn trả về: 2",
+      "pass_criteria": "Hệ thống trả về đúng 2 lựa chọn theo sơ đồ kiến trúc"
+    },
+    {
+      "id": "CASE-16",
+      "layer": "④ Đặc thù domain",
+      "scenario": "Học viên chọn sai được cấp đúng gói gỡ rối tương ứng",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Số câu sai: 2, Số bài gỡ rối: 2",
+      "pass_criteria": "Chỉ tạo đúng 2 bài tập ôn tập cho đúng 2 câu bị sai"
+    },
+    {
+      "id": "CASE-17",
+      "layer": "① Nguồn sự thật",
+      "scenario": "Kiểm tra MarkItDown trích xuất đủ 15 slide từ file PDF",
+      "status": "PASS",
+      "passed": true,
+      "reason": "MarkItDown trích xuất đủ: 15 slide",
+      "pass_criteria": "Trích xuất đúng 15 trang slide không bị thiếu trang"
+    },
+    {
+      "id": "CASE-18",
+      "layer": "③ Ngoài phạm vi / Thẩm quyền",
+      "scenario": "Giảng viên đổi ghi chú thành 'Chỉ dạy Slide 1 đến 5'",
+      "status": "PASS",
+      "passed": true,
+      "reason": "In-scope: 5, Blocked: 10",
+      "pass_criteria": "Hệ thống động thích ứng: chỉ sinh 5 câu hỏi bám Slide 1-5"
+    },
+    {
+      "id": "CASE-19",
+      "layer": "④ Đặc thù domain",
+      "scenario": "Hoàn tất bài ôn tập tình huống mới đóng vòng lặp thích ứng",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Vòng lặp hoàn tất: REMEDIATION_PASSED",
+      "pass_criteria": "Học viên được công nhận Mastery sau khi vượt qua bài ôn tập"
+    },
+    {
+      "id": "CASE-20",
+      "layer": "④ Đặc thù domain",
+      "scenario": "Giao diện cung cấp Web Audio feedback và confetti animation",
+      "status": "PASS",
+      "passed": true,
+      "reason": "Giao diện tích hợp đầy đủ Web Audio API và canvas-confetti animation",
+      "pass_criteria": "Tích hợp đầy đủ Web Audio synthesizer và canvas-confetti chuẩn Quiz.com"
+    }
+  ]
 }

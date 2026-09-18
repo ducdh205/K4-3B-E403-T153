@@ -25,6 +25,7 @@ def run_evaluation():
 
     passed_count = 0
     results_by_layer = {}
+    case_results = []
 
     for c in cases:
         cid = c["id"]
@@ -175,6 +176,16 @@ def run_evaluation():
                 passed = ("canvas-confetti" in pkg and "SoundEffects" in snd)
             reason = "Giao diện tích hợp đầy đủ Web Audio API và canvas-confetti animation"
 
+        case_results.append({
+            "id": cid,
+            "layer": layer,
+            "scenario": c["scenario"],
+            "status": "PASS" if passed else "FAIL",
+            "passed": passed,
+            "reason": reason,
+            "pass_criteria": c.get("pass_criteria", "")
+        })
+
         if passed:
             passed_count += 1
             results_by_layer[layer]["passed"] += 1
@@ -191,16 +202,21 @@ def run_evaluation():
         print(f" * {l_name}: {l_stat['passed']}/{l_stat['total']} ({l_rate}%)")
     print("================================================================")
 
+    payload = {
+        "total_cases": len(cases),
+        "passed_cases": passed_count,
+        "pass_rate_percent": pass_rate,
+        "quality_bar": "Đạt khi >= 90% qua bộ kiểm thử",
+        "quality_bar_met": pass_rate >= 90.0,
+        "breakdown_by_layer": results_by_layer,
+        "cases": case_results
+    }
+
     # Ghi kết quả vào file eval/eval_results.json
     with open("eval/eval_results.json", "w", encoding="utf-8") as f:
-        json.dump({
-            "total_cases": len(cases),
-            "passed_cases": passed_count,
-            "pass_rate_percent": pass_rate,
-            "quality_bar": "Đạt khi >= 90% qua bộ kiểm thử",
-            "quality_bar_met": pass_rate >= 90.0,
-            "breakdown_by_layer": results_by_layer
-        }, f, ensure_ascii=False, indent=2)
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+
+    return payload
 
 if __name__ == "__main__":
     run_evaluation()

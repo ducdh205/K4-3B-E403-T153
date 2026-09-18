@@ -404,6 +404,7 @@ class MySQLDatabase:
                     "concept": item["concept"],
                     "slide_page": item["slide_page"],
                     "citation_code": item["citation_code"],
+                    "provenance": f"Slide Trang {item['slide_page']} • {item['citation_code']}",
                     "fail_count": item["fail_count"],
                     "fail_rate": f"{fail_rate}%"
                 })
@@ -411,7 +412,8 @@ class MySQLDatabase:
             return {
                 "total_attempts": total_attempts,
                 "total_wrong_count": total_wrong,
-                "most_failed_concepts": results
+                "most_failed_concepts": results,
+                "ranked_mistakes": results
             }
         finally:
             session.close()

@@ -321,3 +321,31 @@ def get_mistake_analytics():
     - Xếp thứ tự từ cao xuống thấp
     """
     return mysql_db.get_mistake_analytics()
+
+@router.get("/eval/latest")
+def get_latest_eval():
+    """
+    Lấy kết quả chạy đánh giá Golden Set 20 Testcase gần nhất.
+    """
+    eval_file = "eval/eval_results.json"
+    if os.path.exists(eval_file):
+        try:
+            with open(eval_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    from eval.run_eval import run_evaluation
+    return run_evaluation()
+
+@router.post("/eval/run")
+def trigger_eval_run():
+    """
+    Kích hoạt chạy thực tế bộ đánh giá chất lượng hệ thống (20 Testcases Golden Set).
+    """
+    from eval.run_eval import run_evaluation
+    result = run_evaluation()
+    return {
+        "success": True,
+        "message": f"Đã chạy xong 20 testcase: {result['passed_cases']}/{result['total_cases']} đạt ({result['pass_rate_percent']}%)",
+        "data": result
+    }
