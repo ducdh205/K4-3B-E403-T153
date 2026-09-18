@@ -66,11 +66,30 @@ class SlideParser:
 
         full_structured_md = "\n".join(formatted_md_parts)
 
+        # Lưu cả file PDF và file Markdown vào thư mục docs/
+        docs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "docs"))
+        os.makedirs(docs_dir, exist_ok=True)
+
+        base_name = os.path.splitext(os.path.basename(pdf_path))[0]
+        target_md_path = os.path.join(docs_dir, f"{base_name}.md")
+        target_pdf_path = os.path.join(docs_dir, f"{base_name}.pdf")
+
+        # Ghi file Markdown đã sinh
+        with open(target_md_path, "w", encoding="utf-8") as f:
+            f.write(full_structured_md)
+
+        # Lưu hoặc sao chép file PDF tương ứng
+        if os.path.abspath(pdf_path) != os.path.abspath(target_pdf_path):
+            import shutil
+            shutil.copyfile(pdf_path, target_pdf_path)
+
         return {
             "source_file": os.path.basename(pdf_path),
             "total_slides": len(slides),
             "slides": slides,
             "structured_markdown": full_structured_md,
-            "raw_markdown": raw_text
+            "raw_markdown": raw_text,
+            "saved_md_path": target_md_path,
+            "saved_pdf_path": target_pdf_path
         }
 
