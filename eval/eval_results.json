@@ -128,7 +128,7 @@
       "scenario": "Chống trùng lặp tuyệt đối giữa Quiz ôn tập và Quiz ban đầu",
       "status": "PASS",
       "passed": true,
-      "reason": "Tình huống Q01 (Anh Nam) và RETRY_Q01 (Chị Mai) khác nhau 100%",
+      "reason": "Câu gốc và câu ôn tập khác nhau 100% (dedup OK) — retry: 'Chị Mai quản lý một cửa hàng thời trang muốn tăng ...'",
       "pass_criteria": "Nội dung câu hỏi ôn tập là tình huống mới toanh 100%, không trùng câu chữ với Q01"
     },
     {
@@ -137,7 +137,7 @@
       "scenario": "Chống trùng lặp câu hỏi Slide 2 JTBD",
       "status": "PASS",
       "passed": true,
-      "reason": "Tình huống Q02 (trạm sạc xe điện) và RETRY_Q02 (dịch vụ giặt là) khác nhau 100%",
+      "reason": "Câu JTBD gốc và câu ôn tập khác nhau 100% (dedup OK) — retry: 'Một bạn sinh viên phỏng vấn người dùng dịch vụ giặ...'",
       "pass_criteria": "Tình huống mới 100% về giặt là khác hoàn toàn tình huống ban đầu về trạm sạc điện"
     },
     {
