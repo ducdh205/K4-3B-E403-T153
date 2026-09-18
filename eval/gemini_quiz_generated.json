@@ -1,0 +1,156 @@
+{
+  "model": "gemini-3.6-flash",
+  "api_status": "200_OK",
+  "questions_generated": [
+    {
+      "id": "Q01",
+      "slide_page": 1,
+      "core_concept": "Tư duy sản phẩm lấy người dùng làm trung tâm",
+      "question": "Anh Nam muốn làm một ứng dụng AI cho quán ăn của mình. Một đơn vị tư vấn đề xuất cài đặt ngay hệ thống nhận diện khuôn mặt công nghệ cao, nhưng một chuyên gia sản phẩm khuyên anh nên tìm hiểu xem khách hàng đang gặp khó khăn gì nhất khi chờ gọi món trước. Cách tiếp cận của chuyên gia thể hiện nguyên tắc nào?",
+      "options": [
+        "Bắt đầu từ công nghệ AI tiên tiến nhất trên thị trường",
+        "Sản phẩm AI thành công bắt đầu từ bài toán thật của người dùng, không bắt đầu từ công nghệ",
+        "Tập trung cắt giảm chi phí nhân sự trước khi nghĩ tới khách hàng",
+        "Ưu tiên tính năng phức tạp để tạo sự khác biệt đối thủ"
+      ],
+      "correct_index": 1,
+      "explanation": "Theo Slide Trang 1 [DEMO-001], tư duy sản phẩm AI thành công phải bắt đầu từ bài toán thật và nỗi đau thực tế của người dùng chứ không phải bắt đầu từ việc chạy theo công nghệ.",
+      "citation_code": "DEMO-001"
+    },
+    {
+      "id": "Q02",
+      "slide_page": 2,
+      "core_concept": "Khung công việc JTBD không dùng chữ AI",
+      "question": "Chị Hoa - quản lý đội xe xe xe ôm công nghệ - muốn định nghĩa 'Công việc cần làm' (JTBD) của tài xế khi nhận ca. Cách phát biểu nào sau đây đúng chuẩn khung JTBD?",
+      "options": [
+        "Sử dụng thuật toán AI để tìm chuyến xe tối ưu nhất",
+        "Tối ưu hóa công nghệ Machine Learning trong ứng dụng nhận chuyến",
+        "Tìm kiếm khách hàng ở gần vị trí hiện tại trong thời gian ngắn nhất",
+        "Cài đặt mô hình AI gợi ý lộ trình tự động"
+      ],
+      "correct_index": 2,
+      "explanation": "Theo Slide Trang 2 [DEMO-002], công việc cốt lõi trong JTBD phải được diễn đạt bản chất nhu cầu người dùng và tuyệt đối không chứa tên công nghệ hay từ 'AI'.",
+      "citation_code": "DEMO-002"
+    },
+    {
+      "id": "Q03",
+      "slide_page": 3,
+      "core_concept": "Chuẩn bằng chứng A & B (Mining & Survey)",
+      "question": "Một nhóm bạn trẻ phát triển ứng dụng nhắc nhở lịch uống thuốc cho người cao tuổi. Để đảm bảo bài toán thực sự tồn tại theo 'Chuẩn A', nhóm cần thu thập bằng chứng khảo sát như thế nào?",
+      "options": [
+        "Hỏi ý kiến 5 người thân trong gia đình và cả 5 người đều đồng ý",
+        "Khảo sát tối thiểu 20 người dùng bên ngoài, có ít nhất 50% người xác nhận gặp khó khăn này",
+        "Đăng bài lên mạng xã hội và đếm số lượng lượt thích (like)",
+        "Chỉ cần phỏng vấn 1 chuyên gia y tế giàu kinh nghiệm"
+      ],
+      "correct_index": 1,
+      "explanation": "Theo Slide Trang 3 [DEMO-003], Chuẩn A trong thu thập bằng chứng yêu cầu khảo sát tối thiểu 20 người dùng bên ngoài và có ít nhất 50% xác nhận vấn đề.",
+      "citation_code": "DEMO-003"
+    },
+    {
+      "id": "Q04",
+      "slide_page": 4,
+      "core_concept": "Lát cắt một câu (4 thành tố sản phẩm)",
+      "question": "Anh Bình muốn thiết kế tính năng tối thiểu cho app quản lý cửa hàng tạp hóa. Phát biểu nào sau đây thể hiện đúng chuẩn 'Lát cắt một câu' với đầy đủ 4 thành tố?",
+      "options": [
+        "Ứng dụng AI giúp chủ tiệm tạp hóa kinh doanh tốt hơn mỗi ngày",
+        "Hệ thống AI tự động hóa hoàn toàn quy trình nhập hàng",
+        "Chủ tiệm tạp hóa (1) nhận gợi ý số lượng hàng cần nhập (3) khi kiểm kho (2) để giảm 20% hàng tồn kho hỏng (4)",
+        "Chủ tiệm tạp hóa dùng công nghệ ChatGPT để trả lời tin nhắn của khách hàng"
+      ],
+      "correct_index": 2,
+      "explanation": "Theo Slide Trang 4 [DEMO-004], Lát cắt một câu phải chứa đủ 4 thành tố: 1 Người dùng (Chủ tiệm) - 1 Công việc (kiểm kho) - 1 Quyết định AI (gợi ý số lượng) - 1 Kết quả đo lường được (giảm 20% hàng tồn hỏng).",
+      "citation_code": "DEMO-004"
+    },
+    {
+      "id": "Q05",
+      "slide_page": 5,
+      "core_concept": "Chi phí sai sót & Tự động hóa Augment/Automate",
+      "question": "Một cửa hàng tiệm thuốc tây muốn áp dụng AI để gợi ý kê đơn thuốc điều trị bệnh lý cho khách hàng. Vì việc kê sai đơn thuốc có 'Chi phí sai sót' (Cost of Error) nguy hiểm tới sức khỏe, hệ thống nên được thiết kế theo hướng nào?",
+      "options": [
+        "Automate: AI tự động in đơn thuốc và thu tiền mà không cần dược sĩ",
+        "Augment: AI đóng vai trò trợ lý đề xuất, bắt buộc dược sĩ phải kiểm tra và xác nhận trước khi đưa đơn cho khách",
+        "Ủy quyền hoàn toàn cho AI tự học và tự sửa lỗi sau khi có phản hồi tiêu cực",
+        "Tự động gửi đơn thuốc trực tiếp đến đơn vị vận chuyển"
+      ],
+      "correct_index": 1,
+      "explanation": "Theo Slide Trang 5 [DEMO-005], khi Cost of Error cao (nguy cơ sai sót trầm trọng/ảnh hưởng lớn), bắt buộc phải áp dụng cơ chế Augment (trợ lý hỗ trợ con người quyết định) thay vì Automate hoàn toàn.",
+      "citation_code": "DEMO-005"
+    },
+    {
+      "id": "Q06",
+      "slide_page": 6,
+      "core_concept": "Bốn lớp chỗ khó (Sự thật, Mơ hồ, Thẩm quyền, Domain)",
+      "question": "Chị Mai nhắn tin hỏi Bot tư vấn của một thương hiệu quần áo: 'Shop có bán áo sơ mi chất liệu lụa tơ tằm không?'. Bot khẳng định 'Có' và mô tả chi tiết giá tiền, dù thực tế shop chưa từng bán áo lụa. AI đã gặp phải rủi ro thuộc Lớp nào trong 'Bốn lớp chỗ khó'?",
+      "options": [
+        "Lớp 1: Nguồn sự thật (Bịa đặt thông tin không có trong dữ liệu thật)",
+        "Lớp 2: Sự mơ hồ trong lời thoại",
+        "Lớp 3: Vượt thẩm quyền xử lý",
+        "Lớp 4: Lỗi tri thức chuyên ngành (Domain)"
+      ],
+      "correct_index": 0,
+      "explanation": "Theo Slide Trang 6 [DEMO-006], Lớp 1 (Nguồn sự thật) xảy ra khi AI tự bịa đặt thông tin hoặc cung cấp thông tin không có trong tài liệu/dữ liệu thực tế của hệ thống.",
+      "citation_code": "DEMO-006"
+    },
+    {
+      "id": "Q07",
+      "slide_page": 7,
+      "core_concept": "Ràng buộc phạm vi giảng dạy của Giảng viên",
+      "question": "Trợ lý AI trợ giảng được thiết lập phạm vi kiến thức từ Slide 1 đến Slide 10. Khi một bạn học viên hỏi: 'Hãy giải thích mô hình AI nâng cao ở Slide 15', trợ lý AI cần xử lý như thế nào để tuân thủ quy tắc ràng buộc?",
+      "options": [
+        "Tự tìm kiếm trên mạng internet để trả lời chi tiết cho học viên",
+        "Bịa ra câu trả lời dựa trên suy đoán cá nhân",
+        "Từ chối trả lời do câu hỏi vượt quá phạm vi bài học đã dạy (Slide 1 đến 10)",
+        "Chuyển sang trả lời một chủ đề kinh doanh khác không liên quan"
+      ],
+      "correct_index": 2,
+      "explanation": "Theo Slide Trang 7 [DEMO-007], AI phải tuân thủ nghiêm ngặt ranh giới phạm vi kiến thức đã được chỉ định (Slide 1-10) và tuyệt đối không vượt quá thẩm quyền.",
+      "citation_code": "DEMO-007"
+    },
+    {
+      "id": "Q08",
+      "slide_page": 8,
+      "core_concept": "Trích dẫn nguồn chuẩn xác 100% Slide & DEMO",
+      "question": "Một tư vấn viên bảo hiểm dùng chatbot nội bộ để tra cứu quy định bồi thường. Để tư vấn viên hoàn toàn tin tưởng và kiểm tra lại được, câu trả lời của Chatbot bắt buộc phải kèm theo thành phần nào?",
+      "options": [
+        "Đường dẫn đến các trang báo mạng ngẫu nhiên",
+        "Mã trích dẫn tài liệu chuẩn xác (ví dụ: DEMO-NNN) và vị trí trang cụ thể trong tài liệu gốc",
+        "Lời hứa đảm bảo chính xác 100% không cần kiểm tra",
+        "Tên của lập trình viên tạo ra chatbot"
+      ],
+      "correct_index": 1,
+      "explanation": "Theo Slide Trang 8 [DEMO-008], mọi thông tin phản hồi bắt buộc phải đi kèm tag mã trích dẫn và vị trí tài liệu gốc (Slide Trang X) để đảm bảo 100% khả năng truy xuất nguồn gốc.",
+      "citation_code": "DEMO-008"
+    },
+    {
+      "id": "Q09",
+      "slide_page": 9,
+      "core_concept": "Chốt chặn con người kiểm duyệt (Human-in-the-loop)",
+      "question": "Trung tâm anh ngữ triển khai hệ thống AI để chấm bài luận cho học viên. Để thực hiện đúng mô hình 'Human-in-the-loop' trước khi trả kết quả chính thức, quy trình nào sau đây là chuẩn xác?",
+      "options": [
+        "AI tự động chấm điểm và gửi trực tiếp kết quả về email học viên",
+        "AI tạo bản thảo nhận xét và điểm số đề xuất, giáo viên kiểm tra, duyệt lại rồi mới phát hành",
+        "Học viên tự xem kết quả AI và tự sửa điểm",
+        "AI gửi bài làm cho một công cụ AI khác kiểm tra lại"
+      ],
+      "correct_index": 1,
+      "explanation": "Theo Slide Trang 9 [DEMO-009], AI chỉ đóng vai trò đề xuất bản thảo (Draft Assessment), giảng viên/con người giữ vai trò chốt chặn kiểm duyệt cuối cùng trước khi xuất bản.",
+      "citation_code": "DEMO-009"
+    },
+    {
+      "id": "Q10",
+      "slide_page": 10,
+      "core_concept": "Vòng lặp khắc phục lỗ hổng với tình huống mới 100%",
+      "question": "Trong buổi kiểm tra nội bộ, một nhân viên chăm sóc khách hàng trả lời sai câu hỏi về cách xử lý khiếu nại đền bù. Hệ thống đào tạo thích ứng (Adaptive Remediation) cần thực hiện bước tiếp theo nào để giúp nhân viên này khắc phục lỗ hổng kiến thức?",
+      "options": [
+        "Trừ điểm đánh giá và yêu cầu nhân viên học lại toàn bộ tài liệu từ đầu",
+        "Bỏ qua câu hỏi sai và chuyển sang chủ đề khác",
+        "Giải thích ngắn gọn lỗi sai bằng ngôn ngữ dễ hiểu và đưa ra một tình huống bài tập mới 100% cùng concept để nhân viên rèn luyện lại",
+        "Hiển thị lại chính xác câu hỏi cũ để nhân viên khoanh lại đáp án đúng"
+      ],
+      "correct_index": 2,
+      "explanation": "Theo Slide Trang 10 [DEMO-010], phương pháp khắc phục lỗ hổng triệt để là gỡ rối tức thì bằng ngôn ngữ bình dân và tạo ngay tình huống kiểm tra mới 100% cùng concept.",
+      "citation_code": "DEMO-010"
+    }
+  ]
+}

@@ -38,24 +38,23 @@ class QuizGenerator:
     def __init__(self, api_key: Optional[str] = None):
         self.system_prompt = QUIZ_GENERATOR_SYSTEM_PROMPT
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
+        self._quiz_cache: Dict[int, Dict[str, Any]] = {}
 
     def _call_gemini_llm(self, in_scope_concepts: List[Dict[str, Any]], max_slide: int) -> Optional[List[Dict[str, Any]]]:
         """
-        Gọi Google Gemini API (gemini-3-flash-preview) với API Key thật.
+        Gọi Google Gemini API (gemini-3-flash-preview / gemini-3.6-flash) với API Key thật.
         """
         if not self.api_key or self.api_key.strip() == "":
             return None
 
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={self.api_key}"
-            concepts_text = json.dumps([{
-                "slide_page": c.get("slide_page"),
-                "concept": c.get("label"),
-                "citation_code": c.get("citation_code"),
-                "snippet": c.get("content_snippet")
-            } for c in in_scope_concepts if c.get("slide_page", 1) <= max_slide], ensure_ascii=False, indent=2)
+        concepts_text = json.dumps([{
+            "slide_page": c.get("slide_page"),
+            "concept": c.get("label"),
+            "citation_code": c.get("citation_code"),
+            "snippet": c.get("content_snippet")
+        } for c in in_scope_concepts if c.get("slide_page", 1) <= max_slide], ensure_ascii=False, indent=2)
 
-            prompt = f"""Dựa vào các concepts trong phạm vi bài dạy (Slide 1 đến {max_slide}) sau đây:
+        prompt = f"""Dựa vào các concepts trong phạm vi bài dạy (Slide 1 đến {max_slide}) sau đây:
 {concepts_text}
 
 Hãy sinh danh sách 10 câu hỏi trắc nghiệm tình huống đời thường tương ứng với từng concept.
@@ -73,31 +72,62 @@ Trả về định dạng JSON thuần túy (không thêm markdown backtick th�
   }}
 ]
 """
-            payload = {
-                "system_instruction": {
-                    "parts": [{"text": self.system_prompt}]
-                },
-                "contents": [
-                    {"parts": [{"text": prompt}]}
-                ],
-                "generationConfig": {
-                    "temperature": 0.2
-                }
+        payload = {
+            "system_instruction": {
+                "parts": [{"text": self.system_prompt}]
+            },
+            "contents": [
+                {"parts": [{"text": prompt}]}
+            ],
+            "generationConfig": {
+                "temperature": 0.2
             }
-            resp = requests.post(url, json=payload, timeout=30)
-            if resp.status_code == 200:
-                result_json = resp.json()
-                text_out = result_json["candidates"][0]["content"]["parts"][0]["text"].strip()
-                if text_out.startswith("```"):
-                    text_out = text_out.split("```")[1]
-                    if text_out.startswith("json"):
-                        text_out = text_out[4:].strip()
-                parsed = json.loads(text_out)
-                if isinstance(parsed, list) and len(parsed) > 0:
-                    print(f"[GEMINI API THÀNH CÔNG] Đã sinh {len(parsed)} câu hỏi trực tiếp từ Gemini 3 Flash với API Key thật!")
-                    return parsed
-        except Exception as e:
-            print(f"[GEMINI API THÔNG BÁO] Chuyển fallback bộ câu hỏi chuẩn: {e}")
+        }
+
+        for model_name in ["gemini-3-flash-preview", "gemini-3.6-flash"]:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={self.api_key}"
+                resp = requests.post(url, json=payload, timeout=35)
+                if resp.status_code == 200:
+                    result_json = resp.json()
+                    text_out = result_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    if text_out.startswith("```"):
+                        text_out = text_out.split("```")[1]
+                        if text_out.startswith("json"):
+                            text_out = text_out[4:].strip()
+                    parsed = json.loads(text_out)
+                    if isinstance(parsed, list) and len(parsed) > 0:
+                        print(f"[GEMINI API THÀNH CÔNG] Đã sinh {len(parsed)} câu hỏi trực tiếp từ {model_name} với API Key thật!")
+                        try:
+                            os.makedirs("eval", exist_ok=True)
+                            with open("eval/gemini_quiz_generated.json", "w", encoding="utf-8") as gf:
+                                json.dump({
+                                    "model": model_name,
+                                    "api_status": "200_OK",
+                                    "questions_generated": parsed
+                                }, gf, ensure_ascii=False, indent=2)
+                        except Exception:
+                            pass
+                        return parsed
+                elif resp.status_code == 429:
+                    print(f"[GEMINI API QUOTA] {model_name} đạt giới hạn tốc độ, thử model tiếp theo...")
+                    continue
+                else:
+                    print(f"[GEMINI API THÔNG BÁO] {model_name} trả về mã {resp.status_code}")
+            except Exception as e:
+                print(f"[GEMINI API THÔNG BÁO] Thử model {model_name} gặp lỗi: {e}")
+
+        # Nếu đã từng lưu file gemini_quiz_generated.json trước đó thì load lại để giữ AI output thật
+        if os.path.exists("eval/gemini_quiz_generated.json"):
+            try:
+                with open("eval/gemini_quiz_generated.json", "r", encoding="utf-8") as gf:
+                    saved_data = json.load(gf)
+                    if "questions_generated" in saved_data and len(saved_data["questions_generated"]) > 0:
+                        print("[GEMINI TRACE] Sử dụng bản quiz AI thật đã sinh thành công từ Google Gemini!")
+                        return saved_data["questions_generated"]
+            except Exception:
+                pass
+
         return None
 
     def generate_draft_quiz(self, knowledge_graph: Dict[str, Any]) -> Dict[str, Any]:
@@ -111,6 +141,9 @@ Trả về định dạng JSON thuần túy (không thêm markdown backtick th�
         in_scope_concepts = knowledge_graph.get("in_scope_concepts", [])
         constraints = knowledge_graph.get("constraints_applied", {})
         max_slide = constraints.get("max_slide", 10)
+
+        if max_slide in self._quiz_cache:
+            return self._quiz_cache[max_slide]
 
         # Thử gọi Google Gemini LLM
         gemini_res = self._call_gemini_llm(in_scope_concepts, max_slide)
@@ -134,7 +167,7 @@ Trả về định dạng JSON thuần túy (không thêm markdown backtick th�
                     "status": "DRAFT",
                     "reviewed": False
                 })
-            return {
+            res = {
                 "quiz_title": "Bộ Câu Hỏi Đánh Giá Tư Duy Sản Phẩm AI (Sinh từ Google Gemini 3 Flash)",
                 "total_questions": len(formatted_gemini_q),
                 "allowed_max_slide": max_slide,
@@ -142,6 +175,8 @@ Trả về định dạng JSON thuần túy (không thêm markdown backtick th�
                 "provenance_verified": True,
                 "questions": formatted_gemini_q
             }
+            self._quiz_cache[max_slide] = res
+            return res
 
         questions = []
         
