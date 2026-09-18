@@ -1,0 +1,173 @@
+[
+  {
+    "id": "CASE-01",
+    "layer": "① Nguồn sự thật",
+    "scenario": "Trích dẫn nguồn chuẩn xác Slide 1",
+    "input_concept": "Tư duy sản phẩm lấy người dùng làm trung tâm",
+    "expected_citation": "DEMO-001",
+    "expected_slide": 1,
+    "pass_criteria": "Mã trích dẫn phải khớp chính xác DEMO-001 và Slide 1"
+  },
+  {
+    "id": "CASE-02",
+    "layer": "① Nguồn sự thật",
+    "scenario": "Trích dẫn nguồn chuẩn xác Slide 2 JTBD",
+    "input_concept": "Khung JTBD",
+    "expected_citation": "DEMO-002",
+    "expected_slide": 2,
+    "pass_criteria": "Mã trích dẫn phải khớp chính xác DEMO-002"
+  },
+  {
+    "id": "CASE-03",
+    "layer": "① Nguồn sự thật",
+    "scenario": "Trích dẫn chuẩn Bảng bằng chứng Slide 3",
+    "input_concept": "Chuẩn bằng chứng A và B",
+    "expected_citation": "DEMO-003",
+    "expected_slide": 3,
+    "pass_criteria": "Mã trích dẫn phải khớp DEMO-003"
+  },
+  {
+    "id": "CASE-04",
+    "layer": "① Nguồn sự thật",
+    "scenario": "Trích dẫn Lát cắt một câu Slide 4",
+    "input_concept": "Lát cắt một câu 4 thành tố",
+    "expected_citation": "DEMO-004",
+    "expected_slide": 4,
+    "pass_criteria": "Mã trích dẫn phải khớp DEMO-004"
+  },
+  {
+    "id": "CASE-05",
+    "layer": "① Nguồn sự thật",
+    "scenario": "Phát hiện thông tin bịa đặt không có trong tài liệu",
+    "input_claim": "Khóa học yêu cầu học viên đóng thêm 10 triệu đồng lệ phí thi",
+    "expected_action": "REJECT_UNFOUNDED_CLAIM",
+    "pass_criteria": "Hệ thống từ chối claim không có trong tài liệu slide"
+  },
+  {
+    "id": "CASE-06",
+    "layer": "② Mơ hồ / Thiếu thông tin",
+    "scenario": "Giảng viên chỉ nhập 'Tạo quiz' mà không ghi số slide",
+    "input_note": "Tạo quiz",
+    "expected_behavior": "FALLBACK_SAFE_DEFAULT",
+    "expected_max_slide": 10,
+    "pass_criteria": "Hệ thống áp dụng giới hạn an toàn mặc định Slide 1 - 10"
+  },
+  {
+    "id": "CASE-07",
+    "layer": "② Mơ hồ / Thiếu thông tin",
+    "scenario": "Học viên bỏ trống câu trả lời khi nộp bài",
+    "input_answers": {},
+    "expected_behavior": "FLAG_UNANSWERED",
+    "pass_criteria": "Hệ thống ghi nhận câu chưa làm và đưa vào danh sách cần gỡ rối"
+  },
+  {
+    "id": "CASE-08",
+    "layer": "③ Ngoài phạm vi / Thẩm quyền",
+    "scenario": "Giảng viên ghi 'Mới dạy Slide 1-10', yêu cầu chặn Slide 11",
+    "note": "Mới dạy xong Slide 1 - 10",
+    "test_concept_slide": 11,
+    "expected_status": "BLOCKED_OUT_OF_SCOPE",
+    "pass_criteria": "Khái niệm Slide 11 bị chặn 100%, không xuất hiện trong Quiz"
+  },
+  {
+    "id": "CASE-09",
+    "layer": "③ Ngoài phạm vi / Thẩm quyền",
+    "scenario": "Chặn câu hỏi về Vector DB HNSW thuộc Slide 13",
+    "note": "Mới dạy xong Slide 1 - 10",
+    "test_concept_slide": 13,
+    "expected_status": "BLOCKED_OUT_OF_SCOPE",
+    "pass_criteria": "Khái niệm Slide 13 bị chặn 100%"
+  },
+  {
+    "id": "CASE-10",
+    "layer": "③ Ngoài phạm vi / Thẩm quyền",
+    "scenario": "Chặn câu hỏi về Đa tác tử LangGraph thuộc Slide 14",
+    "note": "Mới dạy xong Slide 1 - 10",
+    "test_concept_slide": 14,
+    "expected_status": "BLOCKED_OUT_OF_SCOPE",
+    "pass_criteria": "Khái niệm Slide 14 bị chặn 100%"
+  },
+  {
+    "id": "CASE-11",
+    "layer": "③ Ngoài phạm vi / Thẩm quyền",
+    "scenario": "Hệ thống tự động phát hành Quiz mà chưa có giảng viên duyệt",
+    "action": "AUTO_PUBLISH_ATTEMPT",
+    "expected_behavior": "BLOCKED_REQUIRE_HUMAN_APPROVAL",
+    "pass_criteria": "Hệ thống cấm phát hành nếu chưa có xác nhận của Giảng viên"
+  },
+  {
+    "id": "CASE-12",
+    "layer": "④ Đặc thù domain",
+    "scenario": "Chống trùng lặp tuyệt đối giữa Quiz ôn tập và Quiz ban đầu",
+    "concept_page": 1,
+    "initial_q_id": "Q01",
+    "retry_q_id": "RETRY_Q01",
+    "pass_criteria": "Nội dung câu hỏi ôn tập là tình huống mới toanh 100%, không trùng câu chữ với Q01"
+  },
+  {
+    "id": "CASE-13",
+    "layer": "④ Đặc thù domain",
+    "scenario": "Chống trùng lặp câu hỏi Slide 2 JTBD",
+    "concept_page": 2,
+    "initial_q_id": "Q02",
+    "retry_q_id": "RETRY_Q02",
+    "pass_criteria": "Tình huống mới 100% về giặt là khác hoàn toàn tình huống ban đầu về trạm sạc điện"
+  },
+  {
+    "id": "CASE-14",
+    "layer": "④ Đặc thù domain",
+    "scenario": "Ngôn ngữ giải thích lỗi sai phải thuần Việt và gần gũi",
+    "concept_page": 2,
+    "pass_criteria": "Giải thích sử dụng ví dụ đời thường ('chiếc đinh và cái búa', 'mũi khoan 8 ly')"
+  },
+  {
+    "id": "CASE-15",
+    "layer": "④ Đặc thù domain",
+    "scenario": "Đúng 100% cốt lõi phải kích hoạt đủ 2 lựa chọn đi tiếp",
+    "submission_score": 100,
+    "expected_options": ["Lựa chọn 1: Nâng cao level bài hiện tại", "Lựa chọn 2: Chuyển sang bài học tiếp theo"],
+    "pass_criteria": "Hệ thống trả về đúng 2 lựa chọn theo sơ đồ kiến trúc"
+  },
+  {
+    "id": "CASE-16",
+    "layer": "④ Đặc thù domain",
+    "scenario": "Học viên chọn sai được cấp đúng gói gỡ rối tương ứng",
+    "wrong_questions": ["Q01", "Q05"],
+    "expected_remediation_count": 2,
+    "pass_criteria": "Chỉ tạo đúng 2 bài tập ôn tập cho đúng 2 câu bị sai"
+  },
+  {
+    "id": "CASE-17",
+    "layer": "① Nguồn sự thật",
+    "scenario": "Kiểm tra MarkItDown trích xuất đủ 15 slide từ file PDF",
+    "source_pdf": "slide-tu-duy-san-pham.pdf",
+    "expected_slide_count": 15,
+    "pass_criteria": "Trích xuất đúng 15 trang slide không bị thiếu trang"
+  },
+  {
+    "id": "CASE-18",
+    "layer": "③ Ngoài phạm vi / Thẩm quyền",
+    "scenario": "Giảng viên đổi ghi chú thành 'Chỉ dạy Slide 1 đến 5'",
+    "note": "Chỉ dạy Slide 1 đến 5",
+    "expected_max_slide": 5,
+    "expected_in_scope": 5,
+    "expected_blocked": 10,
+    "pass_criteria": "Hệ thống động thích ứng: chỉ sinh 5 câu hỏi bám Slide 1-5"
+  },
+  {
+    "id": "CASE-19",
+    "layer": "④ Đặc thù domain",
+    "scenario": "Hoàn tất bài ôn tập tình huống mới đóng vòng lặp thích ứng",
+    "retry_correct": true,
+    "expected_final_status": "REMEDIATION_PASSED",
+    "pass_criteria": "Học viên được công nhận Mastery sau khi vượt qua bài ôn tập"
+  },
+  {
+    "id": "CASE-20",
+    "layer": "④ Đặc thù domain",
+    "scenario": "Giao diện cung cấp Web Audio feedback và confetti animation",
+    "feature": "GAMIFIED_EXPERIENCE",
+    "pass_criteria": "Tích hợp đầy đủ Web Audio synthesizer và canvas-confetti chuẩn Quiz.com"
+  }
+]
+

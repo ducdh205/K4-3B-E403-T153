@@ -1,5 +1,10 @@
 .DS_Store
 __pycache__/
+*.pyc
 .env
 node_modules/
+.venv/
+.venv*
+data/uploads/
+data/storage/
 data/

@@ -1,0 +1,25 @@
+{
+  "total_cases": 20,
+  "passed_cases": 20,
+  "pass_rate_percent": 100.0,
+  "quality_bar": "Đạt khi >= 90% qua bộ kiểm thử",
+  "quality_bar_met": true,
+  "breakdown_by_layer": {
+    "① Nguồn sự thật": {
+      "total": 6,
+      "passed": 6
+    },
+    "② Mơ hồ / Thiếu thông tin": {
+      "total": 2,
+      "passed": 2
+    },
+    "③ Ngoài phạm vi / Thẩm quyền": {
+      "total": 5,
+      "passed": 5
+    },
+    "④ Đặc thù domain": {
+      "total": 7,
+      "passed": 7
+    }
+  }
+}
