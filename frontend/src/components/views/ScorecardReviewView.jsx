@@ -270,7 +270,7 @@ export default function ScorecardReviewView({
                         <span>[2] Quiz ôn tập kiến thức sai • Tình huống MỚI TOANH 100% (ZERO DUPLICATION)</span>
                       </div>
                       <span className="text-[10px] font-bold text-indigo-600 bg-indigo-100 dark:bg-indigo-900 px-2.5 py-0.5 rounded-full">
-                        Không trùng câu Q01-Q10
+                        Tình huống khác bài đánh giá ban đầu
                       </span>
                     </div>
 

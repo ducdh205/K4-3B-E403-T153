@@ -141,15 +141,15 @@ export default function App() {
     },
     {
       id: "Q07",
-      question: "Giảng viên ghi chú 'Mới dạy Slide 1-10'. Hệ thống AI.Graph Engine phải hành xử như thế nào?",
+      question: "Giảng viên đã ghi rõ phạm vi kiến thức vừa dạy. Hệ thống AI.Graph Engine phải hành xử như thế nào?",
       citation: "Slide Trang 7 • DEMO-007",
       correct_index: 0,
       slide_page: 7,
       core_concept: "Ràng buộc phạm vi bài dạy",
-      explanation: "AI.Graph Engine kích hoạt Hard Boundary Block, chặn 100% câu hỏi thuộc Slide 11 trở đi để không làm người học hoang mang.",
+      explanation: "AI.Graph Engine giới hạn câu hỏi trong phạm vi giảng viên đã dạy để học viên được đánh giá đúng nội dung đã học.",
       options: [
-        "Kích hoạt Hard Boundary, chặn 100% câu hỏi thuộc Slide 11 trở đi",
-        "Cứ sinh hết cả slide 11-15 cho học viên học trước",
+        "Chỉ sinh câu hỏi trong phạm vi giảng viên đã xác nhận",
+        "Sinh cả câu hỏi ngoài phạm vi đã dạy để học viên học trước",
         "Tự động xóa slide của giảng viên",
         "Bỏ qua ghi chú của giảng viên"
       ]
@@ -208,9 +208,9 @@ export default function App() {
       name: "Tư duy sản phẩm AI & Bài học thích ứng",
       code: "PROD-K4",
       docsCount: 3,
-      description: "Slide bài giảng chuẩn từ BTC (15 trang) • Chặn Slide > 10 • Vòng lặp thích ứng khép kín.",
+      description: "Ôn tập từ tài liệu bài giảng, theo phạm vi đã học và kết quả làm bài.",
       exercises: [
-        { id: 1, title: "Bộ đề thi cốt lõi ban đầu (Q01 - Q10) • Slide 1-10", time: "Hôm nay", progress: 0, color: "indigo" },
+        { id: 1, title: "Bài đánh giá kiến thức cốt lõi", time: "Hôm nay", progress: 0, color: "indigo" },
         { id: 2, title: "Bài tập 2: Khung JTBD & 5 Tiêu chí nghiệm thu", time: "Hôm qua", progress: 100, color: "emerald" },
       ]
     },
@@ -538,7 +538,7 @@ export default function App() {
                     <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-gray-800/50">
                       <div className="text-xs text-gray-400">Trạng thái ranh giới kiến thức</div>
                       <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                        Hard Boundary: Chặn Slide 11 - 15 (Tuân thủ Slide 1-10)
+                        Câu hỏi được giới hạn theo phạm vi giảng viên đã áp dụng
                       </div>
                     </div>
                   </div>
@@ -552,7 +552,7 @@ export default function App() {
                   <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800 text-xs space-y-2">
                     <div className="font-bold text-indigo-600">Quy tắc sư phạm: Zero Duplication</div>
                     <p className="text-gray-500">
-                      Tuyệt đối không lặp lại câu hỏi ban đầu Q01 - Q10 khi học viên làm sai. Mọi câu hỏi ôn tập đều là tình huống mới toanh 100%.
+                      Không lặp lại câu hỏi ban đầu khi học viên ôn tập phần kiến thức còn sai. Mọi câu hỏi ôn tập đều là tình huống mới toanh 100%.
                     </p>
                   </div>
                 </div>

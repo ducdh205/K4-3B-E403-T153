@@ -3,11 +3,11 @@ import { ArrowRight, CheckCircle2, FileText, Lock, Sparkles, UserCheck, PlayCirc
 
 export default function WorkflowStepper({ activeStep, onStepClick, theme }) {
   const steps = [
-    { id: 'step_pdf', label: '1. Nạp Slide PDF', sub: 'MarkItDown 15 trang', stage: 1 },
-    { id: 'step_note', label: '2. Ghi chú Giảng viên', sub: '"Mới dạy Slide 1-10"', stage: 1 },
-    { id: 'step_graph', label: '3. AI.Graph Engine', sub: 'Chặn Slide > 10', stage: 1 },
+    { id: 'step_pdf', label: '1. Nạp Slide PDF', sub: 'Tải tài liệu bài giảng', stage: 1 },
+    { id: 'step_note', label: '2. Ghi chú Giảng viên', sub: 'Xác định nội dung đã dạy', stage: 1 },
+    { id: 'step_graph', label: '3. AI.Graph Engine', sub: 'Sinh câu hỏi theo phạm vi', stage: 1 },
     { id: 'step_review', label: '4. Giảng viên Duyệt', sub: 'Human-in-the-loop', stage: 1 },
-    { id: 'step_quiz', label: '5. Học viên làm Quiz', sub: 'Bộ đề Q01 - Q10', stage: 2 },
+    { id: 'step_quiz', label: '5. Học viên làm Quiz', sub: 'Làm bài đã được duyệt', stage: 2 },
     { id: 'step_remediation', label: '6. Vòng lặp thích ứng', sub: 'Giải thích & Quiz mới', stage: 2 },
     { id: 'step_mastery', label: '7. Đạt chuẩn Mastery', sub: 'Mở 2 lựa chọn đi tiếp', stage: 2 },
   ];
@@ -20,14 +20,6 @@ export default function WorkflowStepper({ activeStep, onStepClick, theme }) {
         <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
           <Sparkles className="w-4 h-4" />
           <span>SƠ ĐỒ LUỒNG: ĐÁNH GIÁ THÍCH ỨNG & VÒNG LẶP ÔN TẬP KHÉP KÍN</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-gray-800 text-indigo-700 dark:text-indigo-300 border border-indigo-200">
-            Slide Trang 1 - 10
-          </span>
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-gray-800 text-emerald-700 dark:text-emerald-300 border border-emerald-200">
-            Loại bỏ mốc 85% • Zero Duplication
-          </span>
         </div>
       </div>
 

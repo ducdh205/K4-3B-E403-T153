@@ -47,7 +47,7 @@ export default function QuizLobby({ quizTitle, isPublished, onStartGame }) {
             {quizTitle || "Đánh Giá Tư Duy Sản Phẩm AI"}
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-2">
-            10 câu hỏi tình huống thực tế đời thường • Ràng buộc bám sát Slide 1 - 10
+            Câu hỏi tình huống thực tế • Bám sát phạm vi bài học đã duyệt
           </p>
         </div>
 

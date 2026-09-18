@@ -43,7 +43,7 @@ export default function SummaryReaderView({
             Ôn tập tóm tắt
           </h2>
           <span className="text-xs font-extrabold text-indigo-600 dark:text-indigo-400">
-            Trích xuất MarkItDown • Giới hạn Slide 1 - 10
+            Nội dung trọng tâm theo tài liệu bài học
           </span>
         </div>
       </div>

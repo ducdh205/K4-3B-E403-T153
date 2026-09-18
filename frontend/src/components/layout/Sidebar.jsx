@@ -51,13 +51,10 @@ export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, on
                     : 'hover:bg-white text-gray-600 hover:text-gray-900'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-[#6366f1]' : 'text-gray-400'}`} />
-                <span>{item.label}</span>
+                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-[#6366f1]' : 'text-gray-400'}`} />
+                <span className="text-left leading-snug">{item.label}</span>
                 {item.id === 'review' && (
                   <span className="ml-auto w-2 h-2 rounded-full bg-indigo-500"></span>
-                )}
-                {item.id === 'teacher' && (
-                  <span className="ml-auto text-[10px] font-bold text-indigo-600 bg-indigo-100 dark:bg-indigo-900 px-1.5 py-0.5 rounded">GĐ 1</span>
                 )}
               </button>
             );

@@ -3,7 +3,7 @@ import { X, Plus, FileText, Upload } from 'lucide-react';
 
 export default function AddExerciseModal({ isOpen, onClose, onAddExercise, theme }) {
   const [title, setTitle] = useState('');
-  const [slideRange, setSlideRange] = useState('Slide 1 - 10');
+  const [slideRange, setSlideRange] = useState('');
 
   if (!isOpen) return null;
 
@@ -62,7 +62,7 @@ export default function AddExerciseModal({ isOpen, onClose, onAddExercise, theme
             <label className="block text-xs font-bold text-gray-500 mb-1.5">Phạm vi Slide</label>
             <input
               type="text"
-              placeholder="VD: Slide 1 - 10"
+              placeholder="Nhập khoảng trang liên quan đến bài tập"
               value={slideRange}
               onChange={(e) => setSlideRange(e.target.value)}
               className={`w-full px-4 py-2.5 rounded-2xl text-xs outline-none border transition-all ${

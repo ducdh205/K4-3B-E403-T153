@@ -6,7 +6,7 @@ import { SoundEffects } from './SoundEffects';
 export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPublished }) {
   const [loading, setLoading] = useState(false);
   const [markdownData, setMarkdownData] = useState(null);
-  const [lecturerNote, setLecturerNote] = useState("Mới dạy xong Slide 1 - 10");
+  const [lecturerNote, setLecturerNote] = useState('');
   const [scopeSummary, setScopeSummary] = useState(null);
   const [draftQuiz, setDraftQuiz] = useState(null);
   const [verifiedHuman, setVerifiedHuman] = useState(false);
@@ -42,6 +42,7 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
       const data = await res.json();
       if (data.success) {
         setMarkdownData(data);
+        setScopeSummary(null);
         SoundEffects.correct();
         refreshStatus();
       }
@@ -66,6 +67,7 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
       const data = await res.json();
       if (data.success) {
         setMarkdownData(data);
+        setScopeSummary(null);
         SoundEffects.correct();
         refreshStatus();
       }
@@ -148,13 +150,13 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
               <span className="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
                 GIAI ĐOẠN 1
               </span>
-              <span className="text-xs text-slate-400 font-mono">Backend: MySQL Active</span>
+              <span className="text-xs text-slate-400">Chuẩn bị bài đánh giá</span>
             </div>
             <h2 className="text-2xl font-black text-white font-display mt-2">
-              Tài Liệu + Ghi Chú Giảng Viên $\rightarrow$ AI Sinh Quiz Có Căn Cứ
+              Tài liệu + Ghi chú giảng viên → Quiz có căn cứ
             </h2>
             <p className="text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              Trích xuất tài liệu chuẩn bằng <strong>Microsoft MarkItDown</strong>, áp đặt ranh giới cứng theo ghi chú bài dạy (chặn slide vượt trang) và kiểm duyệt trước khi phát hành.
+              Tải tài liệu, ghi rõ nội dung đã dạy và kiểm tra các câu hỏi có trích dẫn trước khi phát hành cho học viên.
             </p>
           </div>
 
@@ -165,7 +167,7 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
               className="btn-quiz-3d px-4 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm flex items-center space-x-2"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Nạp Slide Mẫu 15 Trang</span>
+              <span>Nạp tài liệu mẫu</span>
             </button>
           </div>
         </div>
@@ -182,7 +184,7 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
             <div className="flex items-center justify-between">
               <h3 className="font-extrabold text-white text-base flex items-center space-x-2">
                 <span className="w-3 h-3 rounded-full bg-blue-500" />
-                <span>1A. Slide PDF $\rightarrow$ 1B. File Markdown</span>
+                <span>1. Tài liệu PDF → Nội dung trích xuất</span>
               </h3>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-quiz-dark text-slate-300 border border-quiz-border font-mono">
                 {markdownData ? `${markdownData.total_slides} slides` : 'Chưa nạp'}
@@ -190,7 +192,7 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              Dùng repo <strong>MarkItDown</strong> để chuyển đổi Slide PDF sang định dạng Markdown chuẩn, bảo toàn cấu trúc mục và mã trích dẫn <code className="text-purple-300">[DEMO-NNN]</code>.
+              Tải tài liệu bài giảng để trích xuất nội dung, giữ thông tin trang và nguồn tham chiếu cho từng câu hỏi.
             </p>
 
             <div className="flex items-center space-x-3">
@@ -206,13 +208,13 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
                 onClick={handleLoadSample}
                 className="py-2.5 px-4 rounded-2xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-200 text-xs font-bold transition"
               >
-                Nạp Sample
+                Dùng tài liệu mẫu
               </button>
             </div>
 
             {/* Markdown Preview */}
             <div className="pt-2 border-t border-quiz-border">
-              <span className="text-xs font-bold text-slate-400">Xem trước văn bản Markdown trích xuất:</span>
+              <span className="text-xs font-bold text-slate-400">Xem trước nội dung tài liệu:</span>
               <div className="mt-2 h-44 overflow-y-auto bg-quiz-dark p-3 rounded-2xl border border-quiz-border font-mono text-[11px] text-slate-300 leading-relaxed">
                 {markdownData ? (
                   <div>
@@ -229,7 +231,7 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
                     ))}
                   </div>
                 ) : (
-                  <p className="text-slate-500 italic py-6 text-center">Bấm "Nạp Slide Mẫu" để chạy trích xuất MarkItDown...</p>
+                  <p className="text-slate-500 italic py-6 text-center">Tải PDF hoặc nạp tài liệu mẫu để xem nội dung trích xuất.</p>
                 )}
               </div>
             </div>
@@ -248,7 +250,7 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              Chỉ định rõ kiến thức <strong>THỰC TẾ ĐÃ DẠY</strong> trên lớp (Ví dụ: <em>Mới dạy xong Slide 1 - 10</em>). AI bắt buộc chặn toàn bộ câu hỏi ngoài phạm vi này.
+              Ghi rõ khoảng trang và kiến thức <strong>đã dạy trên lớp</strong>. Nội dung này giúp giới hạn câu hỏi theo bài học của bạn.
             </p>
 
             <div className="space-y-3">
@@ -256,20 +258,17 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
                 type="text"
                 value={lecturerNote}
                 onChange={(e) => setLecturerNote(e.target.value)}
-                placeholder="Ví dụ: Mới dạy xong Slide 1 - 10"
+                placeholder="Đã dạy từ trang … đến trang …"
+                aria-label="Ghi chú phạm vi bài dạy"
                 className="w-full bg-quiz-dark border border-quiz-border rounded-2xl px-4 py-3 text-sm text-white font-medium focus:outline-none focus:border-purple-500"
               />
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2 text-xs">
-                  <span className="text-slate-500">Mẫu:</span>
-                  <button onClick={() => setLecturerNote("Mới dạy xong Slide 1 - 10")} className="text-purple-400 hover:underline">Slide 1-10</button>
-                  <span className="text-slate-600">•</span>
-                  <button onClick={() => setLecturerNote("Chỉ dạy Slide 1 đến 5")} className="text-purple-400 hover:underline">Slide 1-5</button>
-                </div>
+                <span className="text-xs text-slate-500">Áp dụng sau khi nhập phạm vi bài dạy.</span>
 
                 <button
                   onClick={handleApplyConstraints}
+                  disabled={!lecturerNote.trim()}
                   className="btn-quiz-3d px-4 py-2 rounded-2xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center space-x-1.5"
                 >
                   <Lock className="w-3.5 h-3.5" />
@@ -280,15 +279,19 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
               {/* Ranh giới summary */}
               <div className="p-3.5 bg-quiz-dark rounded-2xl border border-quiz-border text-xs space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Kiến thức cho phép (In-scope):</span>
+                  <span className="text-slate-400">Phạm vi đã áp dụng:</span>
                   <span className="font-bold text-emerald-400">
-                    {scopeSummary ? `Slide 1 - ${scopeSummary.constraints.max_slide} (${scopeSummary.in_scope_count} Concepts)` : 'Slide 1 - 10 (10 Concepts)'}
+                    {scopeSummary?.constraints?.min_slide != null && scopeSummary?.constraints?.max_slide != null
+                      ? `Trang ${scopeSummary.constraints.min_slide}–${scopeSummary.constraints.max_slide}${scopeSummary.in_scope_count != null ? ` · ${scopeSummary.in_scope_count} khái niệm` : ''}`
+                      : 'Chưa áp dụng phạm vi'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Rào chắn chặn cứng (Blocked):</span>
+                  <span className="text-slate-400">Nội dung ngoài phạm vi:</span>
                   <span className="font-bold text-rose-400">
-                    {scopeSummary ? `Slide ${scopeSummary.constraints.max_slide + 1}+ (${scopeSummary.blocked_count} Chặn)` : 'Slide 11 - 15 (5 Chặn)'}
+                    {scopeSummary?.blocked_count != null
+                      ? `${scopeSummary.blocked_count} khái niệm ngoài phạm vi`
+                      : 'Xác định sau khi áp dụng'}
                   </span>
                 </div>
                 <p className="text-[11px] text-slate-500 pt-1 border-t border-quiz-border font-mono">
@@ -310,7 +313,7 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
               <div>
                 <h3 className="font-extrabold text-white text-base flex items-center space-x-2">
                   <span className="w-3 h-3 rounded-full bg-purple-500" />
-                  <span>3. AI.Graph Engine $\rightarrow$ 4. Giảng Viên Kiểm Duyệt</span>
+                  <span>3. Sinh câu hỏi → 4. Giảng viên kiểm duyệt</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
                   Đổi sang ví dụ đời thường, gắn trích dẫn DEMO-NNN và Slide Trang X.
@@ -422,12 +425,12 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  Đường nét đứt (Dashed Line Loop)
+                  Kết quả học tập
                 </span>
-                <span className="text-xs text-slate-400">Từ Stage 2 gửi ngược về Hộp 4</span>
+                <span className="text-xs text-slate-400">Tổng hợp từ bài làm của học viên</span>
               </div>
               <h3 className="text-lg font-black text-white font-display mt-1">
-                Báo Cáo Giảng Viên: Thống Kê Các Concept Bị Làm Sai Nhiều Nhất
+                Kiến thức học viên cần ôn tập thêm
               </h3>
             </div>
           </div>

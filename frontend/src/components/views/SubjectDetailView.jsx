@@ -28,7 +28,7 @@ export default function SubjectDetailView({
     },
     {
       id: 3,
-      title: "Bài tập 3: Lát cắt MỘT CÂU & Giới hạn Slide 1-10",
+      title: "Bài tập 3: Lát cắt MỘT CÂU & Phạm vi bài học",
       time: "21/2/2025",
       progress: 50,
       color: "amber"
