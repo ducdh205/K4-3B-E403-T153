@@ -183,3 +183,4 @@ K4-3B-E403-T153/
 ├── spec.md                        # Đặc tả AI Spec 8 phần theo chuẩn chương trình
 └── HUONG_DAN_CAI_DAT_VA_CHAY.md   # Tài liệu hướng dẫn này
 ```
+

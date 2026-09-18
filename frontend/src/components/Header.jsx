@@ -85,3 +85,4 @@ export default function Header({ view, setView, audioEnabled, setAudioEnabled, s
     </header>
   );
 }
+

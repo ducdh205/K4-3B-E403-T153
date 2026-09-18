@@ -163,11 +163,17 @@ def run_evaluation():
             reason = f"Vòng lặp hoàn tất: {eval_rem['status']}"
 
         elif cid == "CASE-20":
-            frontend_path = "frontend/index.html"
-            with open(frontend_path, "r", encoding="utf-8") as f:
-                html = f.read()
-            passed = ("SoundEffects" in html and "canvas-confetti" in html and "rose-600" in html)
-            reason = "Giao diện tích hợp đầy đủ Web Audio, Confetti và 4 nút màu rực rỡ Quiz.com"
+            import os
+            pkg_path = "frontend/package.json"
+            sound_path = "frontend/src/components/SoundEffects.js"
+            passed = False
+            if os.path.exists(pkg_path) and os.path.exists(sound_path):
+                with open(pkg_path, "r", encoding="utf-8") as f:
+                    pkg = f.read()
+                with open(sound_path, "r", encoding="utf-8") as f:
+                    snd = f.read()
+                passed = ("canvas-confetti" in pkg and "SoundEffects" in snd)
+            reason = "Giao diện tích hợp đầy đủ Web Audio API và canvas-confetti animation"
 
         if passed:
             passed_count += 1

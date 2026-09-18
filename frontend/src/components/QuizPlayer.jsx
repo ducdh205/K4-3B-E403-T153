@@ -211,3 +211,4 @@ export default function QuizPlayer({ questions, playerProfile, onSubmitQuiz }) {
     </div>
   );
 }
+

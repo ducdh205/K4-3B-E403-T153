@@ -118,3 +118,4 @@ export default function QuizLobby({ quizTitle, isPublished, onStartGame }) {
     </div>
   );
 }
+

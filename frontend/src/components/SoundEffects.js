@@ -37,16 +37,25 @@ export const SoundEffects = {
   click() {
     this.playTone(600, 'sine', 0.05);
   },
+  playClick() {
+    this.click();
+  },
 
   correct() {
     this.playTone(523.25, 'triangle', 0.1, 0);      // C5
     this.playTone(659.25, 'triangle', 0.12, 0.08);  // E5
     this.playTone(783.99, 'triangle', 0.25, 0.16);  // G5
   },
+  playCorrect() {
+    this.correct();
+  },
 
   wrong() {
     this.playTone(280, 'sawtooth', 0.2, 0);
     this.playTone(220, 'sawtooth', 0.3, 0.15);
+  },
+  playWrong() {
+    this.wrong();
   },
 
   fanfare() {
@@ -55,3 +64,5 @@ export const SoundEffects = {
     });
   }
 };
+
+export default SoundEffects;
