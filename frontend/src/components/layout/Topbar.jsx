@@ -1,7 +1,7 @@
 import React from 'react';
-import { Search, Bell, Sparkles } from 'lucide-react';
+import { Search, Bell, Sparkles, UserCheck } from 'lucide-react';
 
-export default function Topbar({ theme, searchQuery, setSearchQuery, onNotificationClick }) {
+export default function Topbar({ theme, searchQuery, setSearchQuery, onNotificationClick, onNavigateTeacher }) {
   return (
     <header className={`h-20 px-8 flex items-center justify-between border-b transition-colors ${
       theme === 'dark' ? 'bg-[#181824] border-gray-800' : 'bg-white border-gray-100'
@@ -34,6 +34,16 @@ export default function Topbar({ theme, searchQuery, setSearchQuery, onNotificat
             }`}
           />
         </div>
+
+        {/* Link to Teacher Portal */}
+        <button
+          onClick={onNavigateTeacher}
+          className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800/60 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-all hover:scale-[1.02] shadow-sm"
+          title="Chuyển sang Cổng Giảng Viên (Backend GV)"
+        >
+          <UserCheck className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+          <span>Cổng Giảng Viên</span>
+        </button>
 
         {/* Bell notification */}
         <button

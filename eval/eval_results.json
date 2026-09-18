@@ -191,7 +191,7 @@
       "scenario": "Hoàn tất bài ôn tập tình huống mới đóng vòng lặp thích ứng",
       "status": "PASS",
       "passed": true,
-      "reason": "Vòng lặp hoàn tất: REMEDIATION_PASSED",
+      "reason": "Vòng lặp hoàn tất: ALL_CORRECT_MASTERY",
       "pass_criteria": "Học viên được công nhận Mastery sau khi vượt qua bài ôn tập"
     },
     {

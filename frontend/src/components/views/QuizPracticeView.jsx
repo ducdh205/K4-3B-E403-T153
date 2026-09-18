@@ -32,19 +32,50 @@ export default function QuizPracticeView({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const currentQ = questions[currentIndex] || {
-    id: "Q01",
-    question: "Theo Ăngghen, vấn đề cơ bản lớn của mọi triết học là gì?",
-    citation: "Slide Trang 1 • DEMO-001",
-    options: [
-      "Mối quan hệ giữa tư duy và tồn tại, giữa ý thức và vật chất",
-      "Vấn đề nguồn gốc của vũ trụ và muôn loài",
-      "Mối quan hệ giữa cá nhân và xã hội",
-      "Vấn đề logic học và phương pháp luận nhận thức"
-    ]
-  };
+  // Xử lý trường hợp chưa có câu hỏi nào được phát hành
+  if (!questions || questions.length === 0) {
+    return (
+      <div className={`p-8 md:p-12 rounded-3xl border text-center max-w-xl mx-auto my-8 ${
+        theme === 'dark' ? 'bg-[#181824] border-gray-800' : 'bg-white border-gray-200 shadow-sm'
+      }`}>
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-5">
+          <BookOpen className="w-8 h-8" />
+        </div>
+        <h3 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          Chưa Có Đề Thi Nào Được Phát Hành
+        </h3>
+        <p className={`text-sm mb-6 leading-relaxed ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          Bộ câu hỏi cần được Giảng viên kiểm duyệt và bấm <strong>"Duyệt & Phát Hành"</strong> từ Cổng Giảng Viên trước khi Học viên có thể vào làm bài.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button
+            onClick={onBack}
+            className={`px-5 py-2.5 rounded-xl text-sm font-semibold border transition ${
+              theme === 'dark'
+                ? 'border-gray-700 text-gray-300 hover:bg-gray-800'
+                : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            Quay lại bài học
+          </button>
+          <button
+            onClick={() => {
+              window.location.href = '/gv';
+            }}
+            className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-600/20 transition flex items-center gap-2"
+          >
+            <Sparkles className="w-4 h-4" />
+            Vào Cổng Giảng Viên
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  const totalQuestions = questions.length || 10;
+  const currentQ = questions[currentIndex];
+  if (!currentQ) return null;
+
+  const totalQuestions = questions.length;
   const progressPercent = Math.round(((currentIndex + 1) / totalQuestions) * 100);
 
   const handleSelectOption = (idx) => {

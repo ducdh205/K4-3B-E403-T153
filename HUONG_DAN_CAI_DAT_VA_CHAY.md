@@ -79,13 +79,14 @@ PYTHONPATH=. uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 *(Nếu dùng môi trường ảo mà không activate, có thể chạy trực tiếp: `PYTHONPATH=. ./.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload`)*
 
 Sau đó mở trình duyệt và truy cập:
-👉 **`http://localhost:8000`**
+👉 **Giao diện Học viên**: `http://localhost:8000/`
+👉 **Cổng Giảng viên (Backend GV)**: `http://localhost:8000/gv` (hoặc nhấn nút "Cổng Giảng Viên" trên thanh điều hướng)
 
 ---
 
-## 4. Trải Nghiệm Giao Diện Phong Cách Quiz.com
+## 4. Trải Nghiệm Giao Diện Hệ Thống (FE Tách Biệt · Chung Backend)
 
-### 🎓 Tab 1: Studio Giảng Viên (Giai đoạn 1 theo Sơ đồ)
+### 🎓 Cổng Giảng Viên - Backend GV (`/gv` hoặc `/teacher`)
 1. **1A. Slide PDF $\rightarrow$ 1B. File Markdown**:
    - Nhấn **"Nạp Slide Mẫu 15 Trang"** (hoặc upload file PDF từ máy).
    - Hệ thống dùng **Microsoft MarkItDown** bóc tách văn bản, giữ nguyên số trang và trích xuất mã nguồn `[DEMO-NNN]`. Dữ liệu được lưu trực tiếp vào bảng `documents` trong MySQL.
@@ -184,3 +185,4 @@ K4-3B-E403-T153/
 └── HUONG_DAN_CAI_DAT_VA_CHAY.md   # Tài liệu hướng dẫn này
 ```
 
+./run.sh --dev

@@ -163,7 +163,7 @@ def run_evaluation():
                 "adaptive_question": {"id": "RETRY_Q01", "correct_index": 0}
             }]
             eval_rem = adaptive.evaluate_remediation_answers(rem_items, {"RETRY_Q01": 0})
-            passed = (eval_rem["status"] == "REMEDIATION_PASSED" and eval_rem["mastery_achieved"])
+            passed = (eval_rem["status"] in ["REMEDIATION_PASSED", "ALL_CORRECT_MASTERY"] and eval_rem["mastery_achieved"])
             reason = f"Vòng lặp hoàn tất: {eval_rem['status']}"
 
         elif cid == "CASE-20":

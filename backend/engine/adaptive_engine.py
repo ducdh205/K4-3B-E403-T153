@@ -182,26 +182,43 @@ class AdaptiveEngine:
         correct_count = 0
         wrong_questions = []
 
-        for q in questions:
-            q_id = q["id"]
+        for q_idx, q in enumerate(questions):
+            q_id = q.get("id", f"Q{q_idx+1:02d}")
+            # Flexible answer matching (support q_id, string index, int index)
             user_ans = student_answers.get(q_id)
-            correct_ans = q["correct_index"]
-            is_correct = (user_ans == correct_ans)
+            if user_ans is None:
+                user_ans = student_answers.get(str(q_idx))
+            if user_ans is None:
+                user_ans = student_answers.get(q_idx)
+            if user_ans is None and "question_index" in q:
+                user_ans = student_answers.get(str(q["question_index"]))
+            if user_ans is not None:
+                try:
+                    user_ans = int(user_ans)
+                except (ValueError, TypeError):
+                    user_ans = None
+
+            correct_ans = q.get("correct_index", 0)
+            is_correct = (user_ans is not None and user_ans == correct_ans)
 
             if is_correct:
                 correct_count += 1
             else:
                 wrong_questions.append({
+                    "id": q_id,
                     "question_id": q_id,
+                    "question": q["question"],
                     "question_text": q["question"],
+                    "options": q["options"],
                     "user_selected": user_ans,
                     "user_selected_text": q["options"][user_ans] if user_ans is not None and 0 <= user_ans < len(q["options"]) else "Chưa chọn",
                     "correct_index": correct_ans,
-                    "correct_text": q["options"][correct_ans],
-                    "slide_page": q["slide_page"],
-                    "citation_code": q["citation_code"],
-                    "core_concept": q["core_concept"],
-                    "original_explanation": q["explanation"]
+                    "correct_text": q["options"][correct_ans] if 0 <= correct_ans < len(q["options"]) else "",
+                    "slide_page": q.get("slide_page", 1),
+                    "citation_code": q.get("citation_code", f"DEMO-{q_idx+1:03d}"),
+                    "core_concept": q.get("core_concept", "Core Concept"),
+                    "explanation": q.get("explanation", ""),
+                    "original_explanation": q.get("explanation", "")
                 })
 
         score_percent = round((correct_count / total_questions) * 100, 1) if total_questions > 0 else 0
@@ -213,6 +230,8 @@ class AdaptiveEngine:
                 "status": "ALL_CORRECT_MASTERY",
                 "score_percent": 100,
                 "correct_count": correct_count,
+                "wrong_count": 0,
+                "wrong_questions": [],
                 "total_questions": total_questions,
                 "message": "Tuyệt vời! Bạn đã xuất sắc trả lời đúng toàn bộ các câu hỏi cốt lõi!",
                 "mastery_achieved": True,
@@ -286,7 +305,9 @@ class AdaptiveEngine:
                 "message": f"Bạn đạt {correct_count}/{total_questions} câu ({score_percent}%). Đừng lo lắng! AI đã kích hoạt chế độ 'Gỡ Rối Ngay Tại Chỗ' giúp bạn lấp đầy lỗ hổng kiến thức.",
                 "mastery_achieved": False,
                 "wrong_count": len(wrong_questions),
+                "wrong_questions": wrong_questions,
                 "remediation_package": {
+                    "session_id": session_id,
                     "remediation_items": remediation_items,
                     "instruction": "Hãy đọc kỹ phần giải thích đời thường thuần Việt bên dưới, sau đó làm các câu hỏi tình huống mới 100% để đánh giá lại năng lực."
                 }
@@ -302,11 +323,21 @@ class AdaptiveEngine:
         correct = 0
         still_wrong = []
 
-        for item in original_remediation_items:
+        for idx, item in enumerate(original_remediation_items):
             q = item["adaptive_question"]
             qid = q["id"]
             user_ans = student_retry_answers.get(qid)
-            if user_ans == q["correct_index"]:
+            if user_ans is None:
+                user_ans = student_retry_answers.get(f"RETRY_{idx}")
+            if user_ans is None:
+                user_ans = student_retry_answers.get(str(idx))
+            if user_ans is not None:
+                try:
+                    user_ans = int(user_ans)
+                except (ValueError, TypeError):
+                    user_ans = None
+
+            if user_ans is not None and user_ans == q["correct_index"]:
                 correct += 1
             else:
                 still_wrong.append({
@@ -317,11 +348,11 @@ class AdaptiveEngine:
 
         if correct == total:
             return {
-                "status": "REMEDIATION_PASSED",
+                "status": "ALL_CORRECT_MASTERY",
                 "score_percent": 100,
                 "correct_count": correct,
                 "total": total,
-                "message": "Tuyệt vời! Bạn đã vượt qua toàn bộ các câu hỏi tình huống ôn tập và làm chủ kiến thức!",
+                "message": "Tuyệt vời! Sau vòng lặp ôn tập, bạn đã xuất sắc trả lời đúng toàn bộ các câu hỏi cốt lõi!",
                 "mastery_achieved": True,
                 "next_options": [
                     {
@@ -337,13 +368,64 @@ class AdaptiveEngine:
                 ]
             }
         else:
+            # Hồi tiếp về nhánh "CÓ CÂU LÀM SAI (Phát hiện hổng kiến thức)"
+            still_wrong_items = []
+            for idx, item in enumerate(original_remediation_items):
+                q = item["adaptive_question"]
+                qid = q["id"]
+                user_ans = student_retry_answers.get(qid)
+                if user_ans is None:
+                    user_ans = student_retry_answers.get(f"RETRY_{idx}")
+                if user_ans is None:
+                    user_ans = student_retry_answers.get(str(idx))
+                if user_ans is not None:
+                    try:
+                        user_ans = int(user_ans)
+                    except (ValueError, TypeError):
+                        user_ans = None
+
+                if user_ans is None or user_ans != q["correct_index"]:
+                    # Tạo tình huống mới sâu hơn cho lần lặp tiếp theo
+                    p_num = item["slide_page"]
+                    still_wrong_items.append({
+                        "source_question_id": qid,
+                        "concept_name": item["concept_name"],
+                        "provenance": item["provenance"],
+                        "slide_page": p_num,
+                        "citation_code": item["citation_code"],
+                        "everyday_explanation": {
+                            "summary": f"Điểm mấu chốt bạn cần nhớ ở {item['concept_name']}",
+                            "detail": item["everyday_explanation"]["detail"],
+                            "citation": item["everyday_explanation"]["citation"]
+                        },
+                        "adaptive_question": {
+                            "id": f"RETRY2_{qid}",
+                            "question": f"Tình huống thực tế nâng cao cho {item['concept_name']}: Trong một dự án thực tế, khi gặp trường hợp người dùng băn khoăn về quy trình, hành động nào là đúng chuẩn nhất?",
+                            "options": [
+                                f"Bám sát đúng nguyên lý cốt lõi tại {item['citation_code']}",
+                                "Bỏ qua ý kiến người dùng để làm theo ý mình",
+                                "Tự động hóa hoàn toàn mà không giải thích cho người dùng",
+                                "Không cung cấp bất kỳ tài liệu hay trích dẫn nào"
+                            ],
+                            "correct_index": 0,
+                            "concept_tested": item["concept_name"],
+                            "slide_page": p_num,
+                            "citation_code": item["citation_code"],
+                            "is_brand_new_scenario": True
+                        }
+                    })
+
             return {
-                "status": "REMEDIATION_RETRY_NEEDED",
+                "status": "HAS_WRONG_ANSWERS",
                 "score_percent": round((correct / total) * 100, 1),
                 "correct_count": correct,
                 "total": total,
-                "message": f"Bạn đã vượt qua {correct}/{total} câu ôn tập. Hãy xem lại phần trích dẫn để hoàn thành nốt nhé!",
+                "message": f"Bạn đã vượt qua {correct}/{total} câu ôn tập. Vòng lặp thích ứng tiếp tục phân loại và đưa ra hướng dẫn chuyên sâu cho {len(still_wrong_items)} concept còn lại.",
                 "mastery_achieved": False,
-                "still_wrong": still_wrong
+                "wrong_count": len(still_wrong_items),
+                "remediation_package": {
+                    "remediation_items": still_wrong_items,
+                    "instruction": "Hãy xem lại phần giải thích đời thường bên dưới và hoàn thành nốt câu hỏi tình huống mới để đạt chuẩn Mastery!"
+                }
             }
 

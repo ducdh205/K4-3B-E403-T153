@@ -22,8 +22,15 @@ class GraphEngine:
             constraints["notes"].append("Không có ghi chú cụ thể, áp dụng phạm vi an toàn mặc định Slide 1 - 10.")
             return constraints
 
-        # Tìm kiếm biểu thức dạng 'Slide 1 - 10' hoặc 'trang 1 đến 8' hoặc '1 - 10'
-        range_match = re.search(r'(?:slide|trang)?\s*(\d+)\s*(?:-|đến|\.\.|to)\s*(\d+)', note_text, re.IGNORECASE)
+        # Nếu giảng viên chọn học tất cả / toàn bộ tài liệu
+        if re.search(r'(?:tất cả|toàn bộ|hết|all|full)', note_text, re.IGNORECASE):
+            constraints["min_slide"] = 1
+            constraints["max_slide"] = 999
+            constraints["notes"].append("Đã xác lập phạm vi: Cho phép toàn bộ tài liệu slide.")
+            return constraints
+
+        # Tìm kiếm biểu thức dạng 'Slide 1 - 10', 'Slide 1 đến Slide 10', 'trang 1 đến 8', '1 - 10'
+        range_match = re.search(r'(?:slide|trang)?\s*(\d+)\s*(?:-|đến|\.\.|to)\s*(?:slide|trang)?\s*(\d+)', note_text, re.IGNORECASE)
         if range_match:
             min_s = int(range_match.group(1))
             max_s = int(range_match.group(2))

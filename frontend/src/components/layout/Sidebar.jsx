@@ -1,10 +1,9 @@
 import React from 'react';
 import { BookOpen, UserCheck, User, Settings, Sun, Moon, Sparkles, FlaskConical } from 'lucide-react';
 
-export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, onNavigateHome }) {
+export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, onNavigateHome, onNavigateTeacher }) {
   const menuItems = [
     { id: 'review', label: 'Ôn tập thích ứng', icon: BookOpen },
-    { id: 'teacher', label: 'Giảng viên Studio', icon: UserCheck },
     { id: 'eval', label: 'Kiểm thử 20 Testcase', icon: FlaskConical },
     { id: 'account', label: 'Tài khoản', icon: User },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
@@ -61,6 +60,23 @@ export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, on
             );
           })}
         </nav>
+
+        {/* Cổng Giảng Viên (Backend GV) entry button */}
+        <div className="mt-6 pt-4 border-t border-gray-200/60 dark:border-gray-800">
+          <button
+            onClick={onNavigateTeacher}
+            className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-gradient-to-r from-purple-500/10 to-indigo-500/10 hover:from-purple-500/20 hover:to-indigo-500/20 border border-purple-200 dark:border-purple-800/60 text-purple-700 dark:text-purple-300 text-xs font-bold transition-all shadow-sm group hover:scale-[1.02]"
+            title="Mở cổng dành riêng cho Giảng viên (Backend GV)"
+          >
+            <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-purple-500/30 group-hover:scale-105 transition-transform">
+              <UserCheck className="w-4 h-4" />
+            </div>
+            <div className="text-left">
+              <div className="font-black text-[12px] tracking-tight">Cổng Giảng Viên</div>
+              <div className="text-[10px] text-purple-600/70 dark:text-purple-300/70 font-medium">Backend GV & Duyệt Quiz</div>
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Bottom section: Theme pill switch */}

@@ -4,7 +4,7 @@ import {
   Award, TrendingUp, Layers, HelpCircle, Phone, Mail, ChevronRight 
 } from 'lucide-react';
 
-export default function LandingPageView({ onEnterDashboard, onOpenQuizDirectly }) {
+export default function LandingPageView({ onEnterDashboard, onOpenQuizDirectly, onEnterTeacherPortal }) {
   return (
     <div className="min-h-screen bg-[#fafbfc] text-slate-800 font-sans">
       {/* 1. Header / Navbar */}
@@ -28,6 +28,13 @@ export default function LandingPageView({ onEnterDashboard, onOpenQuizDirectly }
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            <button 
+              onClick={onEnterTeacherPortal}
+              className="px-4 py-2 rounded-full text-xs font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all hover:scale-[1.02] shadow-sm flex items-center gap-1.5"
+              title="Truy cập Cổng Giảng viên & Backend GV"
+            >
+              <span>🎓 Cổng Giảng Viên (Backend GV)</span>
+            </button>
             <button 
               onClick={onEnterDashboard}
               className="px-5 py-2.5 rounded-full text-xs font-bold text-indigo-600 border border-indigo-200 hover:bg-indigo-50 transition-colors"

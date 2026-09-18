@@ -236,10 +236,16 @@ class MySQLDatabase:
         finally:
             session.close()
 
-    def get_latest_quiz(self) -> Optional[Dict[str, Any]]:
+    def get_latest_quiz(self, published_only: bool = False) -> Optional[Dict[str, Any]]:
         session = self.get_session()
         try:
-            quiz = session.query(QuizModel).order_by(QuizModel.created_at.desc()).first()
+            query = session.query(QuizModel)
+            if published_only:
+                query = query.filter(QuizModel.status == "PUBLISHED")
+            quiz = query.order_by(QuizModel.created_at.desc()).first()
+            if not quiz and published_only:
+                # If no quiz explicitly marked published, fallback to the latest quiz
+                quiz = session.query(QuizModel).order_by(QuizModel.created_at.desc()).first()
             if not quiz:
                 return None
             
@@ -399,6 +405,7 @@ class MySQLDatabase:
                 fail_rate = round((item["fail_count"] / total_attempts * 100), 1) if total_attempts > 0 else 0
                 results.append({
                     "rank": rank,
+                    "question_code": item["question_id"],
                     "question_id": item["question_id"],
                     "question_text": item["question_text"],
                     "concept": item["concept"],
@@ -406,15 +413,238 @@ class MySQLDatabase:
                     "citation_code": item["citation_code"],
                     "provenance": f"Slide Trang {item['slide_page']} • {item['citation_code']}",
                     "fail_count": item["fail_count"],
-                    "fail_rate": f"{fail_rate}%"
+                    "fail_rate": fail_rate
                 })
 
             return {
+                "success": True,
                 "total_attempts": total_attempts,
                 "total_wrong_count": total_wrong,
                 "most_failed_concepts": results,
                 "ranked_mistakes": results
             }
+        finally:
+            session.close()
+
+    def update_draft_question(self, question_code: str, question_text: Optional[str] = None, options: Optional[List[str]] = None, correct_index: Optional[int] = None, explanation: Optional[str] = None) -> bool:
+        session = self.get_session()
+        try:
+            q = session.query(QuestionModel).filter(QuestionModel.question_code == question_code).first()
+            if not q:
+                return False
+            if question_text is not None:
+                q.question_text = question_text
+            if options is not None:
+                q.options_json = json.dumps(options, ensure_ascii=False)
+            if correct_index is not None:
+                q.correct_index = correct_index
+            if explanation is not None:
+                q.explanation = explanation
+            q.reviewed = True
+            session.commit()
+            return True
+        finally:
+            session.close()
+
+    def delete_draft_question(self, question_code: str) -> bool:
+        session = self.get_session()
+        try:
+            q = session.query(QuestionModel).filter(QuestionModel.question_code == question_code).first()
+            if not q:
+                return False
+            quiz = q.quiz
+            session.delete(q)
+            if quiz:
+                quiz.total_questions = max(0, quiz.total_questions - 1)
+            session.commit()
+            return True
+        finally:
+            session.close()
+
+    def get_all_quizzes(self) -> List[Dict[str, Any]]:
+        session = self.get_session()
+        try:
+            quizzes = session.query(QuizModel).order_by(QuizModel.created_at.desc()).all()
+            results = []
+            for q in quizzes:
+                results.append({
+                    "id": q.id,
+                    "quiz_id": q.id,
+                    "title": q.title,
+                    "allowed_max_slide": q.allowed_max_slide,
+                    "status": q.status,
+                    "total_questions": len(q.questions),
+                    "created_at": q.created_at.strftime("%H:%M %d/%m/%Y") if q.created_at else None,
+                    "published_at": q.published_at.strftime("%H:%M %d/%m/%Y") if q.published_at else None,
+                })
+            return results
+        finally:
+            session.close()
+
+    def get_quiz_details(self, quiz_id: str) -> Optional[Dict[str, Any]]:
+        session = self.get_session()
+        try:
+            q = session.query(QuizModel).filter(QuizModel.id == quiz_id).first()
+            if not q:
+                return None
+            questions = []
+            for idx, item in enumerate(q.questions, 1):
+                opts = []
+                try:
+                    opts = json.loads(item.options_json) if item.options_json else []
+                except Exception:
+                    opts = []
+                questions.append({
+                    "id": item.question_code,
+                    "question_index": idx,
+                    "question": item.question_text,
+                    "options": opts,
+                    "correct_index": item.correct_index,
+                    "explanation": item.explanation,
+                    "slide_page": item.slide_page,
+                    "citation_code": item.citation_code,
+                    "provenance": item.provenance,
+                    "core_concept": item.core_concept,
+                    "is_core": item.is_core,
+                    "reviewed": item.reviewed
+                })
+            return {
+                "id": q.id,
+                "quiz_id": q.id,
+                "title": q.title,
+                "allowed_max_slide": q.allowed_max_slide,
+                "status": q.status,
+                "total_questions": len(questions),
+                "created_at": q.created_at.strftime("%H:%M %d/%m/%Y") if q.created_at else None,
+                "published_at": q.published_at.strftime("%H:%M %d/%m/%Y") if q.published_at else None,
+                "questions": questions
+            }
+        finally:
+            session.close()
+
+    def create_quiz(self, title: str, status: str = "PUBLISHED") -> str:
+        session = self.get_session()
+        try:
+            import uuid
+            quiz_id = str(uuid.uuid4())
+            pub_at = datetime.datetime.utcnow() if status == "PUBLISHED" else None
+            quiz = QuizModel(
+                id=quiz_id,
+                title=title,
+                allowed_max_slide=15,
+                status=status,
+                total_questions=0,
+                published_at=pub_at
+            )
+            session.add(quiz)
+            session.commit()
+            return quiz_id
+        finally:
+            session.close()
+
+    def update_quiz(self, quiz_id: str, title: Optional[str] = None, status: Optional[str] = None) -> bool:
+        session = self.get_session()
+        try:
+            quiz = session.query(QuizModel).filter(QuizModel.id == quiz_id).first()
+            if not quiz:
+                return False
+            if title is not None:
+                quiz.title = title
+            if status is not None:
+                quiz.status = status
+                if status == "PUBLISHED" and not quiz.published_at:
+                    quiz.published_at = datetime.datetime.utcnow()
+            session.commit()
+            return True
+        finally:
+            session.close()
+
+    def delete_quiz(self, quiz_id: str) -> bool:
+        session = self.get_session()
+        try:
+            quiz = session.query(QuizModel).filter(QuizModel.id == quiz_id).first()
+            if not quiz:
+                return False
+            session.delete(quiz)
+            session.commit()
+            return True
+        finally:
+            session.close()
+
+    def add_question_to_quiz(self, quiz_id: str, q_data: Dict[str, Any]) -> str:
+        session = self.get_session()
+        try:
+            quiz = session.query(QuizModel).filter(QuizModel.id == quiz_id).first()
+            if not quiz:
+                raise ValueError("Không tìm thấy bộ đề thi tương ứng")
+            
+            existing_count = len(quiz.questions)
+            next_code = f"Q{existing_count + 1:02d}"
+            
+            new_q = QuestionModel(
+                quiz_id=quiz_id,
+                question_code=q_data.get("question_code") or next_code,
+                question_text=q_data["question"],
+                options_json=json.dumps(q_data["options"], ensure_ascii=False),
+                correct_index=q_data["correct_index"],
+                explanation=q_data.get("explanation", ""),
+                slide_page=q_data.get("slide_page", 1),
+                citation_code=q_data.get("citation_code", f"DEMO-{existing_count + 1:03d}"),
+                provenance=q_data.get("provenance", f"Slide Trang {q_data.get('slide_page', 1)}"),
+                core_concept=q_data.get("core_concept", "Khái niệm bài dạy"),
+                is_core=q_data.get("is_core", True),
+                reviewed=True
+            )
+            session.add(new_q)
+            quiz.total_questions = existing_count + 1
+            session.commit()
+            return new_q.question_code
+        finally:
+            session.close()
+
+    def update_question_in_quiz(self, quiz_id: str, question_code: str, q_data: Dict[str, Any]) -> bool:
+        session = self.get_session()
+        try:
+            q = session.query(QuestionModel).filter(
+                QuestionModel.quiz_id == quiz_id,
+                QuestionModel.question_code == question_code
+            ).first()
+            if not q:
+                return False
+            if "question" in q_data:
+                q.question_text = q_data["question"]
+            if "options" in q_data:
+                q.options_json = json.dumps(q_data["options"], ensure_ascii=False)
+            if "correct_index" in q_data:
+                q.correct_index = q_data["correct_index"]
+            if "explanation" in q_data:
+                q.explanation = q_data["explanation"]
+            if "slide_page" in q_data:
+                q.slide_page = q_data["slide_page"]
+                q.provenance = f"Slide Trang {q_data['slide_page']}"
+            if "core_concept" in q_data:
+                q.core_concept = q_data["core_concept"]
+            q.reviewed = True
+            session.commit()
+            return True
+        finally:
+            session.close()
+
+    def delete_question_from_quiz(self, quiz_id: str, question_code: str) -> bool:
+        session = self.get_session()
+        try:
+            q = session.query(QuestionModel).filter(
+                QuestionModel.quiz_id == quiz_id,
+                QuestionModel.question_code == question_code
+            ).first()
+            if not q:
+                return False
+            quiz = q.quiz
+            session.delete(q)
+            if quiz:
+                quiz.total_questions = max(0, quiz.total_questions - 1)
+            session.commit()
+            return True
         finally:
             session.close()
 

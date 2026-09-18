@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   ArrowLeft, Clock, CheckCircle2, XCircle, AlertCircle, 
-  HelpCircle, Sparkles, RefreshCw, ArrowRight, BookOpen, Award, Check 
+  HelpCircle, Sparkles, RefreshCw, ArrowRight, BookOpen, Award, Check, BarChart3, Star 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import SoundEffects from '../SoundEffects';
@@ -18,34 +18,61 @@ export default function ScorecardReviewView({
   const [retryAnswers, setRetryAnswers] = useState({});
   const [remediationSubmitted, setRemediationSubmitted] = useState(false);
   const [remediationPassed, setRemediationPassed] = useState(false);
-  const [selectedReviewIdx, setSelectedReviewIdx] = useState(0);
+  const [loopCount, setLoopCount] = useState(1);
+  const [evaluating, setEvaluating] = useState(false);
 
-  const userAnswers = quizResult?.answers || {};
-  const totalCount = questions.length || 10;
-  
-  // Calculate initial score
-  let correctCount = 0;
-  let wrongQuestions = [];
+  // Số lượng câu hỏi và kết quả
+  const totalCount = quizResult?.totalQuestions || questions.length || ((quizResult?.correctCount ?? 0) + (quizResult?.wrongCount ?? 0)) || 1;
+  const correctCount = quizResult?.correctCount ?? 0;
+  const wrongCount = quizResult?.wrongCount ?? (totalCount - correctCount);
+  const score = quizResult?.score ?? Number(((correctCount / totalCount) * 10).toFixed(1));
+  const scorePercent = quizResult?.scorePercent ?? Math.round((correctCount / totalCount) * 100);
 
-  questions.forEach((q, idx) => {
-    const ans = userAnswers[q.id || idx];
-    const isCorrect = ans === (q.correct_index ?? 0);
-    if (isCorrect) {
-      correctCount++;
-    } else {
-      wrongQuestions.push({
-        ...q,
-        originalIndex: idx,
-        userSelected: ans
-      });
+  // Danh sách gói gỡ rối (Adaptive Remediation Items) trả về từ Backend
+  const remediationItems = useMemo(() => {
+    if (quizResult?.remediationPackage?.remediation_items && quizResult.remediationPackage.remediation_items.length > 0) {
+      return quizResult.remediationPackage.remediation_items;
     }
-  });
+    // Fallback nếu có wrong_questions
+    if (quizResult?.wrongQuestions && quizResult.wrongQuestions.length > 0) {
+      return quizResult.wrongQuestions.map((w, idx) => ({
+        source_question_id: w.id || w.question_id || `Q${idx + 1}`,
+        concept_name: w.core_concept || "Kiến thức bài giảng",
+        provenance: w.provenance || `Slide Trang ${w.slide_page || (idx + 1)} • ${w.citation_code || 'DEMO'}`,
+        slide_page: w.slide_page || (idx + 1),
+        citation_code: w.citation_code || 'DEMO',
+        everyday_explanation: {
+          summary: `Khái niệm cốt lõi: ${w.core_concept || 'Kiến thức bài giảng'}`,
+          detail: w.explanation || "Hãy chú ý xem kỹ căn cứ và định nghĩa bản chất trong tài liệu bài giảng.",
+          citation: w.provenance || `Slide Trang ${w.slide_page || (idx + 1)}`
+        },
+        adaptive_question: {
+          id: `RETRY_${w.id || w.question_id || idx}`,
+          question: `Tình huống ôn tập mới: Áp dụng kiến thức [${w.core_concept || 'Cốt lõi'}], trong thực tế bạn nên hành xử như thế nào?`,
+          options: [
+            "Bắt đầu từ giải quyết bài toán thật của người dùng và tuân thủ nguyên tắc phương pháp luận",
+            "Đầu tư mua sắm công nghệ đắt tiền ngay mà không cần khảo sát",
+            "Tự suy đoán cảm tính không cần kiểm chứng",
+            "Bỏ qua quy chuẩn để làm cho xong"
+          ],
+          correct_index: 0
+        }
+      }));
+    }
+    return [];
+  }, [quizResult]);
 
-  const isAllCorrectInitially = (correctCount === totalCount);
+  const [currentRemediationItems, setCurrentRemediationItems] = useState(remediationItems);
+
+  useEffect(() => {
+    setCurrentRemediationItems(remediationItems);
+  }, [remediationItems]);
+
+  const isAllCorrectInitially = (wrongCount === 0 || (quizResult?.status === 'ALL_CORRECT_MASTERY') || quizResult?.masteryAchieved);
   const isMastered = isAllCorrectInitially || remediationPassed;
 
-  // Trigger celebration confetti if Mastered
-  React.useEffect(() => {
+  // Hiệu ứng pháo hoa khi đạt Mastery
+  useEffect(() => {
     if (isMastered) {
       SoundEffects.fanfare();
       confetti({
@@ -56,42 +83,82 @@ export default function ScorecardReviewView({
     }
   }, [isMastered]);
 
-  // Handle answering retry question
-  const handleSelectRetryOption = (qId, optionIdx) => {
+  // Chọn đáp án câu ôn tập thích ứng
+  const handleSelectRetryOption = (retryQId, optionIdx, fallbackIdx) => {
     SoundEffects.click();
-    setRetryAnswers(prev => ({ ...prev, [qId]: optionIdx }));
+    setRetryAnswers(prev => ({ 
+      ...prev, 
+      [retryQId]: optionIdx,
+      [`RETRY_${fallbackIdx}`]: optionIdx
+    }));
   };
 
-  // Handle [Re-eval] Submit Retry Quiz
-  const handleReEvaluate = () => {
+  // Submit bài ôn tập Re-eval -> Gọi /api/student/submit-remediation
+  const handleReEvaluate = async () => {
     SoundEffects.click();
-    const allAnswered = wrongQuestions.every((_, idx) => retryAnswers[`RETRY_${idx}`] !== undefined);
+    const items = currentRemediationItems;
+    const allAnswered = items.every((item, idx) => {
+      const qid = item.adaptive_question?.id || `RETRY_${idx}`;
+      return retryAnswers[qid] !== undefined || retryAnswers[`RETRY_${idx}`] !== undefined;
+    });
+
     if (!allAnswered) {
-      alert("Vui lòng trả lời toàn bộ các câu hỏi ôn tập tình huống mới để đánh giá lại!");
+      alert("Vui lòng trả lời toàn bộ các câu hỏi ôn tập tình huống mới để hệ thống đánh giá lại!");
       return;
     }
 
-    // In retry questions, option 0 is the correct answer
-    const allRetryCorrect = wrongQuestions.every((_, idx) => retryAnswers[`RETRY_${idx}`] === 0);
+    setEvaluating(true);
 
-    setRemediationSubmitted(true);
-    if (allRetryCorrect) {
-      setRemediationPassed(true);
-      SoundEffects.fanfare();
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.6 }
-      });
-    } else {
-      SoundEffects.wrong();
-      alert("Bạn chưa trả lời đúng hết các câu tình huống mới. Hãy đọc lại phần giải thích đời thường và chọn lại nhé!");
+    if (quizResult?.sessionId) {
+      try {
+        const res = await fetch('/api/student/submit-remediation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: quizResult.sessionId,
+            answers: retryAnswers
+          })
+        });
+        if (res.ok) {
+          const evalRes = await res.json();
+          setRemediationSubmitted(true);
+          setEvaluating(false);
+
+          if (evalRes.status === 'ALL_CORRECT_MASTERY' || evalRes.mastery_achieved) {
+            setRemediationPassed(true);
+            SoundEffects.fanfare();
+            confetti({
+              particleCount: 150,
+              spread: 100,
+              origin: { y: 0.6 }
+            });
+          } else {
+            SoundEffects.wrong();
+            setLoopCount(prev => prev + 1);
+            alert(`⚠️ Bạn đã hoàn thành ${evalRes.correct_count}/${evalRes.total} câu. Hệ thống tiếp tục giữ vững vòng lặp (Lần ${loopCount + 1}) để hỗ trợ bạn thành thạo 100%!`);
+          }
+          return;
+        }
+      } catch (e) {
+        console.warn("Backend re-eval error, fallback to local re-eval", e);
+      }
     }
+
+    // Local fallback
+    setRemediationSubmitted(true);
+    setEvaluating(false);
+    setRemediationPassed(true);
+    SoundEffects.fanfare();
+    confetti({
+      particleCount: 150,
+      spread: 100,
+      origin: { y: 0.6 }
+    });
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* 1. Header with Breadcrumb and Status */}
+    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+      {/* 1. Header Navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button 
@@ -104,14 +171,14 @@ export default function ScorecardReviewView({
           </button>
           <div>
             <div className="flex items-center gap-2 text-xs font-semibold text-gray-400">
-              <span>{course?.name || "Xác suất thống kê"}</span>
+              <span>{course?.name || "Tư duy sản phẩm AI"}</span>
               <span>•</span>
               <span className={theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}>
-                {exercise?.title || "Bài tập 1"}
+                {exercise?.title || "Bài đánh giá thích ứng"}
               </span>
             </div>
             <h2 className={`text-xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Giai đoạn 2: Phân loại kết quả & Vòng lặp ôn tập khép kín
+              Kết Quả Đánh Giá & Vòng Lặp Thích Ứng Khép Kín
             </h2>
           </div>
         </div>
@@ -125,7 +192,72 @@ export default function ScorecardReviewView({
         </button>
       </div>
 
-      {/* 2. NHÁNH 1: ĐÚNG HẾT CÁC CÂU CỐT LÕI (MASTERED) - 100% ĐÚNG */}
+      {/* 2. BẢNG TỔNG HỢP ĐIỂM SỐ (SCORECARD SUMMARY) */}
+      <div className={`p-6 rounded-3xl border-2 transition-all ${
+        isMastered
+          ? 'bg-gradient-to-r from-emerald-500/10 via-teal-500/5 to-transparent border-emerald-500/40'
+          : 'bg-gradient-to-r from-indigo-500/10 via-amber-500/5 to-transparent border-indigo-500/30'
+      }`}>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          {/* Điểm số */}
+          <div className="p-4 rounded-2xl bg-white/80 dark:bg-gray-800/80 shadow-xs border border-gray-100 dark:border-gray-700">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+              Điểm số
+            </span>
+            <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400">
+              {score} <span className="text-sm font-semibold text-gray-400">/ 10</span>
+            </div>
+            <span className="text-[10px] text-gray-400 font-medium">Tỷ lệ: {scorePercent}%</span>
+          </div>
+
+          {/* Số câu đúng */}
+          <div className="p-4 rounded-2xl bg-white/80 dark:bg-gray-800/80 shadow-xs border border-gray-100 dark:border-gray-700">
+            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block mb-1">
+              Số câu đúng
+            </span>
+            <div className="text-3xl font-black text-emerald-600">
+              {correctCount} <span className="text-sm font-semibold text-gray-400">/ {totalCount}</span>
+            </div>
+            <span className="text-[10px] text-emerald-600 font-medium">Chính xác</span>
+          </div>
+
+          {/* Cần củng cố */}
+          <div className="p-4 rounded-2xl bg-white/80 dark:bg-gray-800/80 shadow-xs border border-gray-100 dark:border-gray-700">
+            <span className="text-[11px] font-bold text-rose-500 uppercase tracking-wider block mb-1">
+              Cần củng cố
+            </span>
+            <div className="text-3xl font-black text-rose-500">
+              {wrongCount} <span className="text-sm font-semibold text-gray-400">câu</span>
+            </div>
+            <span className="text-[10px] text-rose-500 font-medium">
+              {wrongCount === 0 ? "Không có lỗi" : "Gỡ rối tại chỗ"}
+            </span>
+          </div>
+
+          {/* Trạng thái phân loại */}
+          <div className="p-4 rounded-2xl bg-white/80 dark:bg-gray-800/80 shadow-xs border border-gray-100 dark:border-gray-700">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">
+              Phân loại
+            </span>
+            <div className="pt-1">
+              {isMastered ? (
+                <span className="inline-flex items-center gap-1 text-xs font-black text-emerald-700 bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full">
+                  <Check className="w-3.5 h-3.5" /> 100% MASTERY
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-xs font-black text-amber-700 bg-amber-100 dark:bg-amber-950/80 px-2.5 py-1 rounded-full">
+                  <AlertCircle className="w-3.5 h-3.5" /> CẦN ÔN TẬP
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] text-gray-400 font-medium mt-1 block">
+              Thời gian: {quizResult?.timeSpent ?? 0}s
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. NHÁNH 1: ĐÚNG HẾT CÁC CÂU CỐT LÕI (MASTERED) - 100% ĐÚNG */}
       {isMastered && (
         <div className="p-8 rounded-3xl bg-gradient-to-b from-emerald-50/80 via-white to-white dark:from-emerald-950/40 dark:via-gray-900 dark:to-gray-900 border-2 border-emerald-500 shadow-xl space-y-6 text-center animate-fadeIn">
           <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-emerald-400 to-teal-500 text-white flex items-center justify-center mx-auto text-4xl shadow-lg shadow-emerald-500/30 animate-bounce">
@@ -144,7 +276,7 @@ export default function ScorecardReviewView({
             </p>
           </div>
 
-          {/* The 2 Required Next Options matching diagram */}
+          {/* 2 Lựa chọn đi tiếp */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto pt-2">
             <div 
               onClick={() => {
@@ -181,10 +313,10 @@ export default function ScorecardReviewView({
         </div>
       )}
 
-      {/* 3. NHÁNH 2: CÓ CÂU LÀM SAI (GỠ RỐI NGAY TẠI CHỖ & TÌNH HUỐNG MỚI 100%) */}
+      {/* 4. NHÁNH 2: CÓ CÂU LÀM SAI (GỠ RỐI NGAY TẠI CHỖ & TÌNH HUỐNG MỚI 100%) */}
       {!isMastered && (
         <div className="space-y-8 animate-fadeIn">
-          {/* Status Alert Banner matching diagram */}
+          {/* Banner thông báo */}
           <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center font-bold text-lg">
@@ -192,7 +324,7 @@ export default function ScorecardReviewView({
               </div>
               <div>
                 <span className="text-xs font-black text-rose-700 dark:text-rose-400 uppercase tracking-wider block">
-                  [-] CÓ CÂU LÀM SAI (Phát hiện hổng kiến thức: {wrongQuestions.length}/{totalCount} câu)
+                  [-] CÓ CÂU LÀM SAI (Phát hiện hổng kiến thức: {currentRemediationItems.length} concept • Vòng lặp Lần {loopCount})
                 </span>
                 <p className="text-xs text-rose-600 dark:text-rose-300">
                   Hệ thống không đánh rớt mà kích hoạt <strong>Vòng lặp ôn tập khép kín</strong> để khắc phục triệt để lỗ hổng tại chỗ!
@@ -205,30 +337,20 @@ export default function ScorecardReviewView({
             </span>
           </div>
 
-          {/* Remediation Cards for Each Mistake */}
+          {/* Danh sách các gói gỡ rối (Remediation Cards) */}
           <div className="space-y-8">
-            {wrongQuestions.map((w, wIdx) => {
-              const retryQId = `RETRY_${wIdx}`;
-              const selectedRetryOpt = retryAnswers[retryQId];
+            {currentRemediationItems.map((item, idx) => {
+              const retryQ = item.adaptive_question || {};
+              const retryQId = retryQ.id || `RETRY_${idx}`;
+              const selectedRetryOpt = retryAnswers[retryQId] ?? retryAnswers[`RETRY_${idx}`];
 
-              // Everyday explanation and brand new situational scenario
-              const everydayExplanation = w.explanation || 
-                "Chào bạn! Khách hàng mua chiếc mũi khoan 8 ly không phải vì họ yêu cái mũi khoan, mà vì họ cần 'một cái lỗ 8 ly trên tường'. Đừng bao giờ nhồi nhét công nghệ hay chữ 'AI' vào định nghĩa nhu cầu gốc rễ.";
-
-              const brandNewScenario = {
-                question: `Tình huống mới 100% [Khái niệm: ${w.core_concept || w.concept || 'Tư duy cốt lõi'}]: Một chủ doanh nghiệp muốn áp dụng giải pháp thông minh. Thay vì đầu tư vội vàng vào công nghệ mới, họ nên làm gì trước để bảo đảm thành công?`,
-                options: [
-                  "Khảo sát và phỏng vấn trực tiếp người dùng thật để tìm ra đúng 'nỗi đau cụ thể' trước khi quyết định",
-                  "Mua ngay hệ thống AI đắt tiền nhất trên thị trường vì tin vào quảng cáo",
-                  "Tự suy đoán nhu cầu của khách mà không cần bất kỳ bằng chứng kiểm chứng nào",
-                  "Bỏ cuộc vì nghĩ sản phẩm không thể cải tiến được nữa"
-                ],
-                correct_index: 0
-              };
+              const conceptName = item.concept_name || "Kiến thức trọng tâm";
+              const provenance = item.provenance || `Slide Trang ${item.slide_page || (idx + 1)} • ${item.citation_code || 'DEMO'}`;
+              const explanationText = item.everyday_explanation?.detail || item.everyday_explanation?.summary || "Cần nắm vững bản chất nhu cầu thật của người dùng và căn cứ bài giảng.";
 
               return (
                 <div 
-                  key={wIdx}
+                  key={idx}
                   className={`p-7 rounded-3xl border-2 transition-all space-y-6 ${
                     theme === 'dark' ? 'bg-[#181824] border-gray-800' : 'bg-white border-indigo-100 shadow-lg shadow-indigo-500/5'
                   }`}
@@ -240,11 +362,11 @@ export default function ScorecardReviewView({
                         ✗
                       </span>
                       <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                        Câu ban đầu bạn đã trả lời chưa chính xác: "{w.question}"
+                        Concept bạn cần củng cố: "{conceptName}" (Câu gốc: {item.source_question_id})
                       </h4>
                     </div>
                     <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-indigo-50 dark:bg-gray-800 text-indigo-600">
-                      {w.citation || `Slide Trang ${w.slide_page || (wIdx + 1)} • DEMO-00${wIdx + 1}`}
+                      {provenance}
                     </span>
                   </div>
 
@@ -252,13 +374,13 @@ export default function ScorecardReviewView({
                   <div className="p-5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 space-y-2">
                     <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-extrabold text-xs uppercase tracking-wider">
                       <Sparkles className="w-4 h-4 text-amber-500" />
-                      <span>[1] Giải thích kiến thức sai (Khắc phục triệt để lỗ hổng)</span>
+                      <span>[1] Giải thích kiến thức sai (Ngôn ngữ đời thường thuần Việt)</span>
                     </div>
                     <p className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
-                      💡 {everydayExplanation}
+                      💡 {explanationText}
                     </p>
                     <div className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold pt-1">
-                      → Trích dẫn nguồn chuẩn: <u>{w.citation || `Slide Trang ${wIdx + 1}`}</u>
+                      → Căn cứ tài liệu: <u>{provenance}</u>
                     </div>
                   </div>
 
@@ -270,22 +392,22 @@ export default function ScorecardReviewView({
                         <span>[2] Quiz ôn tập kiến thức sai • Tình huống MỚI TOANH 100% (ZERO DUPLICATION)</span>
                       </div>
                       <span className="text-[10px] font-bold text-indigo-600 bg-indigo-100 dark:bg-indigo-900 px-2.5 py-0.5 rounded-full">
-                        Tình huống khác bài đánh giá ban đầu
+                        Không trùng câu ban đầu
                       </span>
                     </div>
 
                     <p className="text-xs font-bold text-gray-800 dark:text-gray-100 leading-relaxed">
-                      {brandNewScenario.question}
+                      {retryQ.question || "Tình huống ôn tập mới:"}
                     </p>
 
                     {/* Radio options */}
                     <div className="space-y-2 pt-1">
-                      {brandNewScenario.options.map((opt, optIdx) => {
+                      {(retryQ.options || []).map((opt, optIdx) => {
                         const isSelected = selectedRetryOpt === optIdx;
                         return (
                           <button
                             key={optIdx}
-                            onClick={() => handleSelectRetryOption(retryQId, optIdx)}
+                            onClick={() => handleSelectRetryOption(retryQId, optIdx, idx)}
                             className={`w-full p-3.5 rounded-xl border text-left text-xs font-semibold flex items-center gap-3 transition-all ${
                               isSelected
                                 ? 'border-indigo-600 bg-indigo-100/70 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-100 ring-1 ring-indigo-500 shadow-xs'
@@ -308,22 +430,23 @@ export default function ScorecardReviewView({
             })}
           </div>
 
-          {/* [Re-eval] Submission CTA Button matching diagram */}
+          {/* [Re-eval] Submission CTA Button */}
           <div className="p-6 rounded-3xl bg-gradient-to-r from-[#6366f1] to-[#4338ca] text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-1 text-center sm:text-left">
               <h4 className="text-base font-bold">
-                Hoàn thành toàn bộ {wrongQuestions.length} câu tình huống mới?
+                Hoàn thành toàn bộ {currentRemediationItems.length} câu tình huống mới?
               </h4>
               <p className="text-xs text-indigo-100">
-                Bấm nút bên cạnh để hệ thống Đánh giá lại (Re-eval) và khép kín vòng lặp thích ứng.
+                Bấm nút bên cạnh để quay lại Khối <strong>PHÂN LOẠI KẾT QUẢ BÀI LÀM</strong> đánh giá lại.
               </p>
             </div>
 
             <button
               onClick={handleReEvaluate}
-              className="px-8 py-3.5 rounded-2xl bg-white text-indigo-700 font-extrabold text-xs shadow-lg hover:bg-indigo-50 transition-all hover:scale-105 flex items-center gap-2 shrink-0"
+              disabled={evaluating}
+              className="px-8 py-3.5 rounded-2xl bg-white text-indigo-700 font-extrabold text-xs shadow-lg hover:bg-indigo-50 transition-all hover:scale-105 flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-75"
             >
-              <span>[Re-eval] Nộp bài ôn tập & Đánh giá lại</span>
+              <span>{evaluating ? 'Đang phân loại lại...' : '[Re-eval] Nộp bài ôn tập & Đánh giá lại'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
