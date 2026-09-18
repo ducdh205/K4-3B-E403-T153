@@ -274,3 +274,4 @@ Các điều kiện trên là quality bar cho fixture và bộ kiểm thử hi�
 | 18/09/2026 | Hạ mức khai báo từ “Working Prototype” tuyệt đối xuống “Hybrid Mock / Working” | UI learner, dữ liệu và một số engine còn dùng fallback/hardcode |
 | 18/09/2026 | Gỡ số khảo sát và impact không có artefact | Bảo đảm trung thực, không biến kế hoạch thành bằng chứng |
 | 18/09/2026 | Ghi rõ giới hạn của kết quả 20/20 | Tránh diễn giải regression test thành chất lượng AI hoặc validation người dùng |
+
