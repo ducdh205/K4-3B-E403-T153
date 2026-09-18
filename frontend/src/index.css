@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap');
+
+@theme {
+  --color-quiz-dark: #130924;
+  --color-quiz-panel: #1e1435;
+  --color-quiz-card: #291b47;
+  --color-quiz-border: #3c2869;
+  --color-quiz-red: #e21b3c;
+  --color-quiz-redHover: #c91835;
+  --color-quiz-blue: #1368ce;
+  --color-quiz-blueHover: #0f52a5;
+  --color-quiz-yellow: #d89e00;
+  --color-quiz-yellowHover: #b58400;
+  --color-quiz-green: #26890c;
+  --color-quiz-greenHover: #1e6c0a;
+  --color-quiz-purple: #8854c0;
+  --font-display: 'Space Grotesk', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #130924;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+/* 3D Arcade Buttons like Quiz.com */
+.btn-quiz-3d {
+  position: relative;
+  transition: all 0.1s ease-in-out;
+  box-shadow: 0 6px 0 0 rgba(0, 0, 0, 0.4);
+}
+
+.btn-quiz-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.45);
+}
+
+.btn-quiz-3d:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Option Cards */
+.quiz-opt-card {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  border-bottom-width: 6px;
+}
+
+.quiz-opt-card:hover {
+  transform: translateY(-3px) scale(1.008);
+}
+
+.quiz-opt-card:active {
+  transform: translateY(2px) scale(0.992);
+  border-bottom-width: 2px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1e1435;
+}
+::-webkit-scrollbar-thumb {
+  background: #8854c0;
+  border-radius: 9999px;
+}

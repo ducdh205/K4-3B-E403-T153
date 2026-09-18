@@ -8,7 +8,7 @@ from backend.converters.pdf_parser import SlideParser
 from backend.engine.graph_engine import GraphEngine
 from backend.engine.quiz_generator import QuizGenerator
 from backend.engine.adaptive_engine import AdaptiveEngine
-from backend.storage.db import db
+from backend.storage.mysql_db import mysql_db
 
 router = APIRouter(prefix="/api")
 
@@ -36,22 +36,29 @@ class RemediationSubmitRequest(BaseModel):
 
 @router.get("/system/status")
 def get_system_status():
-    md_data = db.get_markdown_data()
-    quiz = db.get_quiz()
+    doc = mysql_db.get_latest_document()
+    c = mysql_db.get_latest_constraint()
+    quiz = mysql_db.get_latest_quiz()
     return {
-        "uploaded_file": db.state.get("uploaded_file"),
-        "total_slides": md_data["total_slides"] if md_data else 0,
-        "lecturer_note": db.state.get("lecturer_note"),
-        "constraints": db.state.get("constraints"),
-        "quiz_status": db.state.get("quiz_status"),
-        "total_quiz_questions": len(quiz["questions"]) if quiz else 0
+        "database_type": "MySQL" if mysql_db.is_mysql else "SQLite (Fallback)",
+        "uploaded_file": doc["source_file"] if doc else None,
+        "total_slides": doc["total_slides"] if doc else 0,
+        "lecturer_note": c.get("raw_note") if c else "Mới dạy xong Slide 1 - 10",
+        "constraints": {
+            "min_slide": c.get("min_slide", 1),
+            "max_slide": c.get("max_slide", 10),
+            "in_scope_count": c.get("in_scope_count", 10),
+            "blocked_count": c.get("blocked_count", 5)
+        } if c else {"min_slide": 1, "max_slide": 10},
+        "quiz_status": quiz["status"] if quiz else "NONE",
+        "total_quiz_questions": quiz["total_questions"] if quiz else 0
     }
 
 @router.post("/lecturer/upload-pdf")
 async def upload_pdf(file: Optional[UploadFile] = File(None)):
     """
-    Tải lên file PDF hoặc nạp sẵn slide mẫu slide-tu-duy-san-pham.pdf
-    Sử dụng Microsoft MarkItDown để trích xuất văn bản sang Markdown cấu trúc.
+    GIAI ĐOẠN 1: 1A. Slide PDF + Transcript -> MarkItDown -> 1B. Markdown
+    Trích xuất văn bản và lưu trữ vào Cơ sở dữ liệu MySQL.
     """
     sample_path = "data/sample_slides/slide-tu-duy-san-pham.pdf"
     target_path = sample_path
@@ -67,18 +74,29 @@ async def upload_pdf(file: Optional[UploadFile] = File(None)):
         raise HTTPException(status_code=404, detail="File PDF không tồn tại")
 
     parsed_result = slide_parser.convert_pdf_to_markdown(target_path)
-    db.set_markdown_data(parsed_result)
-
-    # Tự động khởi tạo knowledge graph với ghi chú mặc định
-    constraints = graph_engine.parse_lecturer_note(db.state.get("lecturer_note", "Mới dạy xong Slide 1 - 10"))
-    db.set_lecturer_note(db.state.get("lecturer_note", "Mới dạy xong Slide 1 - 10"), constraints)
     
-    graph_result = graph_engine.build_knowledge_graph(parsed_result["slides"], constraints)
-    db.set_knowledge_graph(graph_result)
+    # Lưu vào MySQL
+    mysql_db.save_document(
+        source_file=parsed_result["source_file"],
+        total_slides=parsed_result["total_slides"],
+        structured_markdown=parsed_result["structured_markdown"],
+        raw_markdown=parsed_result["raw_markdown"]
+    )
+
+    # Tự động lập ranh giới mặc định
+    c = graph_engine.parse_lecturer_note("Mới dạy xong Slide 1 - 10")
+    kg = graph_engine.build_knowledge_graph(parsed_result["slides"], c)
+    mysql_db.save_constraint(
+        raw_note="Mới dạy xong Slide 1 - 10",
+        min_slide=c["min_slide"],
+        max_slide=c["max_slide"],
+        in_scope=kg["in_scope_count"],
+        blocked=kg["blocked_count"]
+    )
 
     return {
         "success": True,
-        "message": f"Đã chuyển đổi thành công {parsed_result['total_slides']} slide bằng MarkItDown",
+        "message": f"Đã chuyển đổi và lưu trữ thành công {parsed_result['total_slides']} slide bằng MarkItDown vào MySQL",
         "file_name": parsed_result["source_file"],
         "total_slides": parsed_result["total_slides"],
         "slides": parsed_result["slides"],
@@ -87,35 +105,58 @@ async def upload_pdf(file: Optional[UploadFile] = File(None)):
 
 @router.get("/lecturer/markdown-preview")
 def get_markdown_preview():
-    md_data = db.get_markdown_data()
-    if not md_data:
-        # Nếu chưa nạp, tự nạp sample
+    doc = mysql_db.get_latest_document()
+    if not doc:
+        # Tự động nạp sample nếu database trống
         sample_path = "data/sample_slides/slide-tu-duy-san-pham.pdf"
         if os.path.exists(sample_path):
-            md_data = slide_parser.convert_pdf_to_markdown(sample_path)
-            db.set_markdown_data(md_data)
-            constraints = graph_engine.parse_lecturer_note(db.state.get("lecturer_note", "Mới dạy xong Slide 1 - 10"))
-            graph_result = graph_engine.build_knowledge_graph(md_data["slides"], constraints)
-            db.set_knowledge_graph(graph_result)
-        else:
-            raise HTTPException(status_code=404, detail="Chưa có tài liệu slide nào được nạp")
-    return md_data
+            parsed_result = slide_parser.convert_pdf_to_markdown(sample_path)
+            mysql_db.save_document(
+                source_file=parsed_result["source_file"],
+                total_slides=parsed_result["total_slides"],
+                structured_markdown=parsed_result["structured_markdown"],
+                raw_markdown=parsed_result["raw_markdown"]
+            )
+            c = graph_engine.parse_lecturer_note("Mới dạy xong Slide 1 - 10")
+            kg = graph_engine.build_knowledge_graph(parsed_result["slides"], c)
+            mysql_db.save_constraint(
+                raw_note="Mới dạy xong Slide 1 - 10",
+                min_slide=c["min_slide"],
+                max_slide=c["max_slide"],
+                in_scope=kg["in_scope_count"],
+                blocked=kg["blocked_count"]
+            )
+            return parsed_result
+        raise HTTPException(status_code=404, detail="Chưa có tài liệu slide nào")
+    
+    # Parse lại từ raw/sample để lấy slides list
+    sample_path = "data/sample_slides/slide-tu-duy-san-pham.pdf"
+    if os.path.exists(sample_path):
+        return slide_parser.convert_pdf_to_markdown(sample_path)
+    return doc
 
 @router.post("/lecturer/set-constraints")
 def set_constraints(req: NoteConstraintRequest):
     """
-    Giảng viên nhập ghi chú bài dạy (Vd: Mới dạy xong Slide 1 - 10).
-    AI.GRAPH ENGINE đối chiếu Markdown với Ghi chú, xác lập ranh giới cứng (Hard Boundary).
+    GIAI ĐOẠN 1: 2. GHI CHÚ BÀI DẠY CỦA GIẢNG VIÊN (Ràng buộc nội dung - Điều kiện tiên quyết)
+    AI.Graph Engine đối chiếu Markdown với Ghi chú, chặn câu hỏi vượt trang quy định.
     """
-    md_data = db.get_markdown_data()
-    if not md_data:
-        raise HTTPException(status_code=400, detail="Vui lòng tải lên hoặc nạp PDF trước")
+    sample_path = "data/sample_slides/slide-tu-duy-san-pham.pdf"
+    if not os.path.exists(sample_path):
+        raise HTTPException(status_code=400, detail="Vui lòng nạp PDF trước")
 
+    parsed = slide_parser.convert_pdf_to_markdown(sample_path)
     constraints = graph_engine.parse_lecturer_note(req.lecturer_note)
-    db.set_lecturer_note(req.lecturer_note, constraints)
+    graph_result = graph_engine.build_knowledge_graph(parsed["slides"], constraints)
 
-    graph_result = graph_engine.build_knowledge_graph(md_data["slides"], constraints)
-    db.set_knowledge_graph(graph_result)
+    # Lưu vào MySQL
+    mysql_db.save_constraint(
+        raw_note=req.lecturer_note,
+        min_slide=constraints["min_slide"],
+        max_slide=constraints["max_slide"],
+        in_scope=graph_result["in_scope_count"],
+        blocked=graph_result["blocked_count"]
+    )
 
     return {
         "success": True,
@@ -129,63 +170,51 @@ def set_constraints(req: NoteConstraintRequest):
 @router.post("/lecturer/generate-quiz")
 def generate_quiz():
     """
-    AI.GRAPH ENGINE sinh bản thảo câu hỏi:
-    - Bám sát Slide 1 - 10
-    - Chặn toàn bộ câu hỏi ngoài Slide 10
+    GIAI ĐOẠN 1: 3. AI.GRAPH ENGINE
+    - Đối chiếu MD với Ghi chú
+    - Chặn câu hỏi vượt trang 10
     - Đổi sang ví dụ đời thường
-    - Gắn trích dẫn DEMO-NNN và Slide Trang X
+    - Gắn trích dẫn DEMO-NNN / Slide Trang X
+    - Gửi bản thảo sang MySQL
     """
-    kg = db.state.get("knowledge_graph")
-    if not kg:
-        raise HTTPException(status_code=400, detail="Chưa có dữ liệu graph kiến thức")
+    sample_path = "data/sample_slides/slide-tu-duy-san-pham.pdf"
+    if not os.path.exists(sample_path):
+        raise HTTPException(status_code=400, detail="Chưa có dữ liệu slide")
 
+    parsed = slide_parser.convert_pdf_to_markdown(sample_path)
+    c_info = mysql_db.get_latest_constraint()
+    constraints = {
+        "min_slide": c_info.get("min_slide", 1),
+        "max_slide": c_info.get("max_slide", 10),
+        "raw_note": c_info.get("raw_note", "Mới dạy xong Slide 1 - 10")
+    }
+    
+    kg = graph_engine.build_knowledge_graph(parsed["slides"], constraints)
     draft_quiz = quiz_generator.generate_draft_quiz(kg)
-    db.set_quiz_draft(draft_quiz)
+    
+    # Lưu vào MySQL
+    quiz_id = mysql_db.save_quiz_draft(draft_quiz)
+    draft_quiz["quiz_id"] = quiz_id
 
     return {
         "success": True,
-        "message": f"AI đã sinh thành công {draft_quiz['total_questions']} câu hỏi bám sát phạm vi bài dạy",
+        "message": f"AI.Graph Engine đã sinh thành công {draft_quiz['total_questions']} câu hỏi bám sát phạm vi bài dạy và lưu vào MySQL",
         "quiz": draft_quiz
     }
-
-@router.post("/lecturer/update-question")
-def update_question(req: UpdateQuestionRequest):
-    quiz = db.get_quiz()
-    if not quiz:
-        raise HTTPException(status_code=400, detail="Chưa có bài quiz nào")
-
-    found = False
-    for q in quiz["questions"]:
-        if q["id"] == req.question_id:
-            if req.question_text is not None:
-                q["question"] = req.question_text
-            if req.options is not None:
-                q["options"] = req.options
-            if req.correct_index is not None:
-                q["correct_index"] = req.correct_index
-            q["reviewed"] = True
-            found = True
-            break
-
-    if not found:
-        raise HTTPException(status_code=404, detail="Không tìm thấy câu hỏi")
-
-    db.set_quiz_draft(quiz)
-    return {"success": True, "quiz": quiz}
 
 @router.post("/lecturer/publish-quiz")
 def publish_quiz():
     """
-    GIẢNG VIÊN KIỂM DUYỆT (Chốt chặn con người - Human-in-the-loop):
+    GIAI ĐOẠN 1: 4. GIẢNG VIÊN KIỂM DUYỆT (Chốt chặn con người - Human-in-the-loop)
+    - Kiểm tra Quiz bám sát bài dạy
     - Xác nhận 100% trích dẫn nguồn
-    - Kiểm tra tính bám sát bài dạy
-    - Bấm Duyệt để phát hành cho học viên
+    - Bấm Duyệt để phát hành
     """
     try:
-        pub = db.publish_quiz()
+        pub = mysql_db.publish_latest_quiz()
         return {
             "success": True,
-            "message": "Đã duyệt và phát hành Quiz thành công! Học viên có thể vào làm bài.",
+            "message": "Đã duyệt và phát hành Quiz thành công! Đã lưu vào MySQL.",
             "quiz": pub
         }
     except Exception as e:
@@ -194,18 +223,16 @@ def publish_quiz():
 @router.get("/student/current-quiz")
 def get_student_quiz():
     """
-    Học viên lấy đề thi để làm trên giao diện phong cách Quiz.com.
-    Ẩn đáp án đúng (correct_index) và lời giải để đảm bảo tính khách quan.
+    5. HỌC VIÊN LÀM BÀI QUIZ ĐÁNH GIÁ (Giao diện phong cách Quiz.com)
     """
-    quiz = db.get_quiz()
-    if not quiz or db.state.get("quiz_status") != "PUBLISHED":
-        # Nếu chưa duyệt, trả về thông báo
+    quiz = mysql_db.get_latest_quiz()
+    if not quiz or quiz.get("status") != "PUBLISHED":
         return {
             "is_published": False,
-            "message": "Giảng viên đang trong quá trình kiểm duyệt câu hỏi. Vui lòng quay lại sau ít phút!"
+            "message": "Giảng viên đang kiểm duyệt câu hỏi. Vui lòng quay lại sau ít phút!"
         }
 
-    # Tạo bản copy an toàn cho học viên
+    # Trả về câu hỏi an toàn không lộ đáp án
     safe_questions = []
     for q in quiz["questions"]:
         safe_questions.append({
@@ -221,6 +248,7 @@ def get_student_quiz():
 
     return {
         "is_published": True,
+        "quiz_id": quiz["quiz_id"],
         "quiz_title": quiz["quiz_title"],
         "total_questions": len(safe_questions),
         "questions": safe_questions
@@ -230,36 +258,57 @@ def get_student_quiz():
 def submit_student_quiz(req: StudentSubmitRequest):
     """
     GIAI ĐOẠN 2: PHÂN LOẠI KẾT QUẢ BÀI LÀM
-    - Đúng 100% -> Chúc mừng & 2 lựa chọn đi tiếp
-    - Có câu sai -> Kích hoạt Gỡ rối tại chỗ (Giải thích đời thường thuần Việt + Quiz ôn tập 100% tình huống mới)
+    - Đúng toàn bộ / 100% đúng -> ĐÚNG HẾT CÁC CÂU CỐT LÕI (2 lựa chọn đi tiếp)
+    - Có câu làm sai -> GỠ RỐI NGAY TẠI CHỖ:
+      1. Giải thích kiến thức sai (ngôn ngữ đời thường thuần Việt + trích dẫn chuẩn)
+      2. Quiz ôn tập kiến thức sai (tình huống MỚI TOANH 100%, tuyệt đối không trùng lặp)
     """
-    quiz = db.get_quiz()
+    quiz = mysql_db.get_latest_quiz()
     if not quiz:
         raise HTTPException(status_code=400, detail="Không tìm thấy bài thi")
 
     result = adaptive_engine.evaluate_quiz_submission(quiz, req.answers)
     
-    # Lưu phiên remediation nếu có
+    # Lưu vào MySQL
+    import uuid
+    attempt_id = str(uuid.uuid4())
+    mysql_db.save_attempt(
+        attempt_id=attempt_id,
+        quiz_id=quiz.get("quiz_id", "default-quiz"),
+        student_name=req.student_name,
+        answers=req.answers,
+        correct_count=result["correct_count"],
+        total_questions=result["total_questions"],
+        score_percent=result["score_percent"],
+        status=result["status"]
+    )
+
     if not result.get("mastery_achieved") and "remediation_package" in result:
-        db.save_remediation_session(result["session_id"], {
-            "student_name": req.student_name,
-            "remediation_items": result["remediation_package"]["remediation_items"],
-            "original_answers": req.answers
-        })
+        mysql_db.save_remediation_session(
+            session_id=result["session_id"],
+            student_name=req.student_name,
+            items=result["remediation_package"]["remediation_items"]
+        )
 
     return result
 
 @router.post("/student/submit-remediation")
 def submit_remediation(req: RemediationSubmitRequest):
     """
-    Đánh giá lại bài làm vòng lặp ôn tập kiến thức sai (Adaptive Retry):
-    Học viên trả lời các câu hỏi tình huống mới 100% để khắc phục triệt để lỗ hổng.
+    GIAI ĐOẠN 2: Làm xong Quiz ôn tập -> Đánh giá lại năng lực
     """
-    session = db.get_remediation_session(req.session_id)
+    session = mysql_db.get_remediation_session(req.session_id)
     if not session:
-        raise HTTPException(status_code=404, detail="Phiên ôn tập không tồn tại hoặc đã hết hạn")
+        raise HTTPException(status_code=404, detail="Phiên ôn tập không tồn tại")
 
-    remediation_items = session.get("remediation_items", [])
-    eval_res = adaptive_engine.evaluate_remediation_answers(remediation_items, req.answers)
+    eval_res = adaptive_engine.evaluate_remediation_answers(session["remediation_items"], req.answers)
+    
+    # Cập nhật kết quả vào MySQL
+    mysql_db.update_remediation_session(
+        session_id=req.session_id,
+        retry_answers=req.answers,
+        status=eval_res["status"],
+        score_percent=eval_res["score_percent"]
+    )
+
     return eval_res
-

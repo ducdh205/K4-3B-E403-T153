@@ -98,34 +98,12 @@
 ---
 
 ## §6. Bốn đường đi của trải nghiệm
-
-- **Happy path:**
-  * **Khối 1 ➔ 2 ➔ 3 (Trích xuất theo ghi chú bài dạy):** Giảng viên nạp Slide PDF (hệ thống dùng **Microsoft MarkItDown** bóc tách thành file Markdown `.md`) + nhập **Ghi chú kiến thức đã dạy** (VD: *"Hôm nay mới dạy xong Slide 1 - 10"*). AI.Graph Engine đối chiếu Markdown với Ghi chú để chỉ sinh ra các câu hỏi trong phạm vi đã dạy, đổi thuật ngữ khó thành ẩn dụ đời thường và gắn nhãn nguồn `[Slide Trang X • DEMO-NNN]`.
-  * **Khối 4 (Giảng viên kiểm duyệt):** Giảng viên kiểm tra nhanh, thấy câu hỏi đúng phạm vi ghi chú $\rightarrow$ Bấm **[Duyệt & Phát hành]** trong 1 phút.
-  * **Khối 5 ➔ Giai đoạn 2 (Học viên làm bài trên giao diện Quiz.com & Phân nhánh):**
-    - *Nếu Đúng hết các câu cốt lõi (100%):* Màn hình nổ pháo hoa Confetti chúc mừng và mở 2 lựa chọn: `[⭐ Nâng cao level bài hiện tại]` hoặc `[⏭️ Chuyển sang bài học tiếp theo]`.
-    - *Nếu Có câu làm sai (Vòng lặp gỡ rối tức thì):* Hệ thống kích hoạt **Gỡ Rối Ngay Tại Chỗ**, giải thích lại kiến thức sai bằng ngôn ngữ đời thường thuần Việt kèm trích dẫn chuẩn $\rightarrow$ Chuyển học viên sang **Khối Quiz ôn tập tình huống MỚI TOANH 100%** (chống trùng lặp tuyệt đối với Q01-Q10) $\rightarrow$ Học viên làm xong, mũi tên trỏ ngược về khối Phân loại kết quả bài làm để kiểm tra lại: nếu đã nắm vững thì đạt chuẩn Mastery, nếu vẫn sai thì tiếp tục hỗ trợ.
-
-- **Low-confidence (②):**
-  * *Tại Khối 2 & 3 (Ghi chú bài dạy mơ hồ):* Giảng viên chỉ ghi "Đã dạy Bài 1" mà không ghi rõ số trang dừng lại $\rightarrow$ AI không đoán mò, tự động fallback về phạm vi an toàn mặc định (Slide 1 - 10) và hiện danh sách checklist các Concept bóc tách từ Markdown để Giảng viên xác nhận trước khi sinh Quiz.
-  * *Tại Khối Quiz ôn tập lại:* Học viên làm lại câu hỏi ôn tập nhưng mất thời gian quá lâu hoặc đổi đáp án liên tục $\rightarrow$ Hệ thống không vội kết luận mà đưa ra một câu gợi ý tư duy đời thường (Hint) để học viên tự tin chọn lại.
-
-- **Failure/không căn cứ & Vượt phạm vi ghi chú (①):**
-  * *Tình huống 1 (Không có căn cứ):* AI sinh câu hỏi hoặc ví dụ đời thường nhưng không tìm thấy số trang trong file Markdown hoặc không có mã `[DEMO-NNN]` $\rightarrow$ Hệ thống tự động loại bỏ câu hỏi đó khỏi bản thảo và yêu cầu tái tạo.
-  * *Tình huống 2 (Vượt ngoài ghi chú bài dạy - Case Slide trang 11-15):* File Slide có trang 11-15, nhưng trong Ghi chú của Giảng viên chỉ xác nhận đã dạy Trang 1–10 $\rightarrow$ Bộ lọc tự động kích hoạt rào chắn cứng: `[❌ Vượt phạm vi ghi chú bài dạy: Slide > 10]` và khóa concept, không sinh câu hỏi.
-
-- **Correction (user sửa):**
-  * *Giảng viên can thiệp (Khối 4):* Nếu ví dụ đời thường AI gợi ý chưa vừa ý $\rightarrow$ Giảng viên bấm **[Sửa trực tiếp]** trên giao diện Review Studio, thay đổi câu chữ hoặc hoán đổi đáp án đúng trước khi phát hành.
-  * *Học viên phản hồi trong vòng lặp ôn tập:* Nếu học viên làm Quiz ôn tập kiến thức sai mà thấy lời giải thích vẫn khó hiểu $\rightarrow$ Bấm nút **[Giải thích bằng ví dụ khác]**, AI sẽ lập tức đổi sang một ví dụ ẩn dụ đời thường mới dễ hiểu hơn.
-
-- **Khi bị đòi ngoài phạm vi (③):**
-  * *Tình huống:* Giảng viên đòi AI tự viết đề thi môn khác không có tài liệu, hoặc Học viên yêu cầu giải hộ bài tập lớn, hoặc hỏi kiến thức các trang sau chưa có trong ghi chú bài dạy (LoRA Fine-tuning, Vector DB, LangGraph).
-  * *Xử lý:* Hệ thống từ chối lịch sự: *"Theo Ghi chú bài dạy của Giảng viên, nội dung này chưa được học trên lớp. Hiện tại hệ thống chỉ hỗ trợ các kiến thức trong phạm vi Slide 1 - 10!"* $\rightarrow$ Điều hướng người dùng quay lại các Concept hiện có.
-
-- **Case đặc thù domain (④ - Vòng lặp học tập sư phạm & Cải tiến bài giảng):**
-  * *Vòng lặp khắc phục hổng kiến thức kín (Closed Remediation Loop):* Học viên không bị bỏ rơi với một danh sách link tài liệu thụ động; thay vào đó, hệ thống giải thích lại ngay lập tức và bắt buộc làm lại **Quiz ôn tập kiến thức sai** với tình huống mới 100% trỏ ngược về khâu đánh giá cho đến khi thực sự hiểu bản chất câu hỏi.
-  * *Ghi chú bài dạy là "Nguồn sự thật" (Pedagogical Ground Truth):* Giải quyết triệt để bài toán lệch tiến độ bài giảng giữa slide lý thuyết soạn sẵn và thực tế trên lớp.
-  * *Vòng lặp cải tiến bài giảng (Feedback loop về Khối 4):* Bảng thống kê tổng hợp những câu hỏi/concept nào học viên phải vào "Vòng lặp Quiz ôn tập" nhiều nhất (xếp từ cao xuống thấp) $\rightarrow$ Báo động cho Giảng viên: *"Khái niệm này học viên hay bị sai và phải ôn lại nhiều nhất, đề xuất Giảng viên giảng lại kỹ hơn trên lớp!"*
+1. **Happy path:** Giảng viên tải PDF $\rightarrow$ MarkItDown parse mượt mà $\rightarrow$ Nhập "Mới dạy Slide 1-10" $\rightarrow$ AI sinh 10 câu bám sát kèm trích dẫn $\rightarrow$ Giảng viên bấm Duyệt $\rightarrow$ Học viên làm bài đạt 100% $\rightarrow$ Hiện màn hình chúc mừng + 2 lựa chọn đi tiếp.
+2. **Low-confidence path:** Giảng viên nhập ghi chú chung chung $\rightarrow$ Hệ thống gợi ý chọn "Slide 1-10" hoặc "Slide 1-5" $\rightarrow$ Hiển thị rõ danh sách các slide được áp dụng trước khi sinh đề.
+3. **Failure / Không căn cứ path:** Khi phát hiện một câu hỏi không thể map với bất kỳ thẻ `<!-- Slide X -->` nào $\rightarrow$ Hệ thống tự động loại bỏ câu hỏi đó khỏi bản thảo và yêu cầu AI tái tạo.
+4. **Correction (User sửa):** Giảng viên trực tiếp sửa lại văn phong câu hỏi hoặc đổi đáp án đúng trên giao diện Review Studio trước khi bấm phát hành.
+5. **Ngoài phạm vi:** Bất kỳ nỗ lực nào đòi hỏi tạo câu hỏi về LoRA Fine-tuning hay Vector DB (Slide 11-15) đều bị hệ thống từ chối với lý do rõ ràng: *"Vượt quá phạm vi bài dạy theo chỉ định của Giảng viên"*.
+6. **Case đặc thù domain (Adaptive Loop):** Học viên sai 2 câu $\rightarrow$ Hệ thống không trừ điểm phạt nặng mà kích hoạt panel "Gỡ rối ngay tại chỗ" $\rightarrow$ Giải thích cặn kẽ $\rightarrow$ Đưa 2 câu tình huống mới $\rightarrow$ Học viên làm đúng $\rightarrow$ Khép kín vòng lặp Mastery!
 
 ---
 

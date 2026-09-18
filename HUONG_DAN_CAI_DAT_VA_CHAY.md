@@ -1,19 +1,21 @@
-# HƯỚNG DẪN CÀI ĐẶT VÀ VẬN HÀNH HỆ THỐNG QUIZAI
+# HƯỚNG DẪN CÀI ĐẶT VÀ VẬN HÀNH HỆ THỐNG QUIZAI (REACT + QUIZ.COM STYLE + MYSQL)
 
-> **Dự án**: Hệ thống AI Sinh Quiz Có Căn Cứ từ Slide PDF (Microsoft MarkItDown), Cổng Kiểm Duyệt Giảng Viên (Human-in-the-loop), Giao Diện Gamified Chuẩn [Quiz.com](https://quiz.com/) và Vòng Lặp Học Tập Thích Ứng (Adaptive Remediation Loop).  
+> **Dự án**: Hệ thống AI Sinh Quiz Có Căn Cứ từ Slide PDF (**Microsoft MarkItDown**), Cổng Kiểm Duyệt Giảng Viên (**Human-in-the-loop**), Giao Diện Gamified Chuẩn **[Quiz.com](https://quiz.com/)** dựng bằng **React**, và Vòng Lặp Học Tập Thích Ứng (**Adaptive Remediation Loop**), lưu trữ dữ liệu bằng **MySQL Database**.  
 > **Khoá học**: AI Thực Chiến K4 • Nhóm 3B • Zone E403.
 
 ---
 
 ## 1. Yêu Cầu Môi Trường
 
-- **Hệ điều hành**: Linux / macOS / Windows (WSL2 hoặc PowerShell).
+- **Hệ điều hành**: Linux (Ubuntu/Debian) / macOS / Windows (WSL2 hoặc PowerShell).
 - **Python**: Phiên bản 3.10 trở lên (khuyến nghị Python 3.11 hoặc 3.12).
-- **Trình duyệt web**: Chrome, Edge, Firefox hoặc Safari bất kỳ.
+- **Node.js**: Phiên bản 18 trở lên (khuyến nghị Node.js 20 hoặc 24) kèm npm.
+- **Cơ sở dữ liệu**: MySQL hoặc MariaDB (cổng 3306).
+  *(Hệ thống tích hợp cơ chế tự động tạo database `quizai` và các bảng dữ liệu, đồng thời có cơ chế dự phòng SQLite nếu MySQL chưa được bật).*
 
 ---
 
-## 2. Các Bước Cài Đặt (Step-by-Step)
+## 2. Hướng Dẫn Cài Đặt (Step-by-Step)
 
 ### Bước 2.1. Clone Repository & Di Chuyển Vào Thư Mục
 ```bash
@@ -21,7 +23,7 @@ git clone https://github.com/ducdh205/K4-3B-E403-T153.git
 cd K4-3B-E403-T153
 ```
 
-### Bước 2.2. Tạo Môi Trường Ảo Python (Virtual Environment)
+### Bước 2.2. Thiết Lập Môi Trường Ảo Python (Backend)
 ```bash
 python3 -m venv .venv
 
@@ -33,97 +35,112 @@ source .venv/bin/activate
 # .venv\Scripts\Activate.ps1
 ```
 
-### Bước 2.3. Cài Đặt Các Gói Thư Viện Cần Thiết
-Hệ thống sử dụng **Microsoft MarkItDown** (`markitdown`) kèm bộ giải nén PDF, FastAPI và Uvicorn:
-
+Cài đặt các gói thư viện Python (bao gồm Microsoft MarkItDown, SQLAlchemy, PyMySQL, FastAPI, Uvicorn):
 ```bash
-pip install markitdown pdfminer.six pdfplumber fastapi uvicorn pydantic python-multipart reportlab pypdf httpx
+pip install markitdown pdfminer.six pdfplumber pymysql sqlalchemy fastapi uvicorn pydantic python-multipart reportlab pypdf httpx
 ```
 
-*(Lưu ý: Thư mục `.venv` đã được đưa vào `.gitignore` để không bị đẩy lên git repository).*
+### Bước 2.3. Cài Đặt và Build React Frontend (Quiz.com Style)
+```bash
+cd frontend
+npm install
+npm run build
+cd ..
+```
+*(Lệnh `npm run build` sẽ đóng gói toàn bộ ứng dụng React + Tailwind CSS v4 vào thư mục `frontend/dist/` để Backend FastAPI phục vụ trực tiếp).*
 
 ### Bước 2.4. Khởi Tạo File Slide PDF Mẫu (15 Trang)
 Chạy script sinh file PDF bài giảng mẫu `data/sample_slides/slide-tu-duy-san-pham.pdf` (gồm 10 slide cơ bản đã dạy và 5 slide nâng cao chưa dạy):
-
 ```bash
 python scripts/generate_sample_pdf.py
 ```
+
+### Bước 2.5. Cấu Hình Cơ Sở Dữ Liệu MySQL (Tùy Chọn)
+Mặc định hệ thống kết nối tới MySQL tại `localhost:3306` với user `root` và database `quizai`.  
+Nếu bạn có mật khẩu MySQL riêng, có thể tạo file `.env` ở thư mục gốc:
+```env
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=mat_khau_cua_ban
+MYSQL_DATABASE=quizai
+```
+*(Nếu dịch vụ MySQL chưa bật, hệ thống sẽ tự động chuyển sang cơ chế SQLite an toàn để đảm bảo mọi chức năng vẫn vận hành mượt mà).*
 
 ---
 
 ## 3. Hướng Dẫn Khởi Chạy Ứng Dụng
 
-Chạy lệnh sau để khởi động Web Server:
+Chạy lệnh sau từ thư mục gốc của repo:
 
 ```bash
 PYTHONPATH=. uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-*(Nếu dùng môi trường ảo mà không activate, bạn có thể gọi trực tiếp: `PYTHONPATH=. ./.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload`)*
+*(Nếu dùng môi trường ảo mà không activate, có thể chạy trực tiếp: `PYTHONPATH=. ./.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload`)*
 
-Sau khi server khởi động xong, mở trình duyệt và truy cập:
+Sau đó mở trình duyệt và truy cập:
 👉 **`http://localhost:8000`**
 
 ---
 
-## 4. Hướng Dẫn Trải Nghiệm Các Tính Năng
+## 4. Trải Nghiệm Giao Diện Phong Cách Quiz.com
 
-### 🎓 Tab 1: Studio Giảng Viên (Creator & Reviewer Mode)
-1. **Bước 1: Nạp tài liệu Slide PDF**:
-   - Nhấn **"⚡ Nạp Bản Mẫu"** (hoặc bấm chọn tải lên file PDF của bạn).
-   - Hệ thống gọi thư viện **Microsoft MarkItDown** để parse PDF sang Markdown, giữ nguyên số trang và mã trích dẫn `[DEMO-NNN]`.
-2. **Bước 2: Ghi chú ràng buộc bài dạy**:
-   - Nhập hoặc chọn ghi chú: *"Mới dạy xong Slide 1 - 10"*.
-   - Nhấn **"🔒 Áp Dụng Ràng Buộc"**.
-   - Hệ thống hiển thị ranh giới cứng: Cho phép 10 Concept (Slide 1-10) và **chặn toàn bộ 5 Concept vượt trang (Slide 11-15)**.
-3. **Bước 3: AI Sinh Bản Thảo Quiz**:
-   - Nhấn **"✨ AI Sinh Quiz Có Căn Cứ"**.
-   - AI.Graph Engine sinh 10 câu hỏi tình huống đời thường gần gũi thuần Việt, kèm huy hiệu trích dẫn nguồn: `Slide Trang X • [DEMO-NNN]`.
-4. **Bước 4: Giảng viên kiểm duyệt (Human-in-the-loop)**:
-   - Xem soát các câu hỏi, tick chọn xác nhận *"Tôi xác nhận 100% câu hỏi bám sát bài dạy và đầy đủ trích dẫn nguồn"*.
-   - Nhấn **"🚀 Duyệt & Phát Hành Quiz Cho Học Viên"**.
-
----
-
-### 🎮 Tab 2: Phòng Chơi Học Viên (Quiz.com Gamified Experience)
-1. **Sảnh chờ (Lobby)**:
-   - Nhập tên người chơi / biệt danh và bấm **"BẮT ĐẦU LÀM BÀI NGAY! 🚀"**.
-2. **Giao diện làm bài phong cách Quiz.com**:
-   - Trực quan, rực rỡ với 4 ô phương án A/B/C/D mang 4 khối màu năng động (Đỏ, Lam, Vàng, Lục).
-   - Âm thanh sống động qua **Web Audio API** (âm bấm nút, âm đúng/sai, chuỗi streak 🔥).
-   - Thanh tiến trình câu hỏi và trích dẫn bài học theo thời gian thực.
-3. **Phân loại kết quả & Vòng lặp thích ứng**:
-   - **Nhánh A (Đúng 100% cốt lõi)**:
-     - Hiệu ứng pháo hoa Confetti nổ rực rỡ.
-     - Cung cấp 2 lựa chọn đi tiếp: *Lựa chọn 1: Nâng cao level bài hiện tại* | *Lựa chọn 2: Chuyển sang bài học tiếp theo*.
-   - **Nhánh B (Có câu làm sai)**:
-     - Kích hoạt chế độ **"Gỡ Rối Ngay Tại Chỗ"**.
-     - *Phần 1 - Giải thích kiến thức sai*: Đọc phần giải thích bằng ngôn ngữ đời thường thuần Việt, chỉ tập trung trúng đích vào lỗi vừa sai kèm trích dẫn `Slide Trang X / DEMO-NNN`.
-     - *Phần 2 - Quiz ôn tập tình huống MỚI TOANH 100%*: Làm các câu hỏi tình huống mới hoàn toàn (chống trùng lặp tuyệt đối, không học vẹt).
-     - Bấm **"Nộp bài ôn tập & Đánh giá lại năng lực"** $\rightarrow$ Thăng hạng lên Mastery khi vượt qua!
+### 🎓 Tab 1: Studio Giảng Viên (Giai đoạn 1 theo Sơ đồ)
+1. **1A. Slide PDF $\rightarrow$ 1B. File Markdown**:
+   - Nhấn **"Nạp Slide Mẫu 15 Trang"** (hoặc upload file PDF từ máy).
+   - Hệ thống dùng **Microsoft MarkItDown** bóc tách văn bản, giữ nguyên số trang và trích xuất mã nguồn `[DEMO-NNN]`. Dữ liệu được lưu trực tiếp vào bảng `documents` trong MySQL.
+2. **2. Ghi chú bài dạy của Giảng viên (Ràng buộc nội dung - Tiên quyết)**:
+   - Nhập ghi chú: *"Mới dạy xong Slide 1 - 10"*.
+   - Nhấn **"Áp Dụng Ràng Buộc"**.
+   - AI.Graph Engine đối chiếu và xác lập ranh giới cứng: Cho phép 10 Concept và **chặn tuyệt đối 5 Concept vượt trang (Slide 11-15)**.
+3. **3. AI.Graph Engine**:
+   - Nhấn **"AI Sinh Quiz Có Căn Cứ"**.
+   - Chuyển đổi kiến thức sang **tình huống đời thường thuần Việt**, gắn trích dẫn `Slide Trang X • [DEMO-NNN]`.
+4. **4. Giảng viên kiểm duyệt (Human-in-the-loop)**:
+   - Soát lại các câu hỏi, tick chọn xác nhận 100% trích dẫn nguồn.
+   - Bấm **"Duyệt & Phát Hành Quiz Cho Học Viên"**. Dữ liệu được lưu vào bảng `quizzes` và `quiz_questions` trong MySQL.
 
 ---
 
-## 5. Hướng Dẫn Chạy Kiểm Thử Tự Động
+### 🎮 Tab 2: Phòng Chơi Học Viên (Giai đoạn 2 theo Sơ đồ)
+1. **Sảnh Chờ (Lobby)**:
+   - Chọn Avatar đại diện (🤖 Robo, 🐱 Mèo, 🦉 Cú, 🦊 Cáo, 🦁 Sư tử, 🚀 Phi hành gia).
+   - Nhập nickname và bấm **"BẮT ĐẦU LÀM BÀI NGAY!"**.
+2. **Giao Diện Chơi Quiz (Quiz.com Style)**:
+   - Thanh đếm thời gian (Countdown progress bar), streak lửa 🔥, điểm số nhảy số real-time.
+   - Câu hỏi tình huống rõ ràng kèm tag trích dẫn nguồn.
+   - **4 Thẻ Màu Siêu Lớn Đặc Trưng**:
+     - **A**: Đỏ Crimson (`#e21b3c`) với biểu tượng Tam Giác ▲ (Phím 1 hoặc A)
+     - **B**: Xanh Lam (`#1368ce`) với biểu tượng Hình Thoi ◆ (Phím 2 hoặc B)
+     - **C**: Vàng Hổ Phách (`#d89e00`) với biểu tượng Hình Tròn ● (Phím 3 hoặc C)
+     - **D**: Xanh Lục (`#26890c`) với biểu tượng Hình Vuông ■ (Phím 4 hoặc D)
+   - Tích hợp **Web Audio API** phát âm thanh arcade sinh động khi chọn đáp án.
+3. **Phân Loại Kết Quả & Vòng Lặp Thích Ứng**:
+   - **Nhánh Đúng 100% Cốt Lõi (Mastery Achieved)**:
+     - Pháo hoa Confetti nổ rực rỡ, cúp vàng vô địch.
+     - 2 Lựa chọn đi tiếp:
+       - *Lựa chọn 1: Nâng cao level bài hiện tại*
+       - *Lựa chọn 2: Chuyển sang bài học tiếp theo*
+   - **Nhánh Có Câu Làm Sai (Gỡ Rối Ngay Tại Chỗ)**:
+     - *Phần 1: Giải thích kiến thức sai*: Diễn đạt bằng ngôn ngữ đời thường thuần Việt, ví dụ gần gũi, kèm trích dẫn `Slide Trang X / DEMO-NNN`.
+     - *Phần 2: Quiz ôn tập tình huống MỚI TOANH 100%*: Bộ câu hỏi tình huống mới hoàn toàn, **tuyệt đối không trùng lặp câu ban đầu Q01..Q10** để chống học vẹt.
+     - Học viên trả lời các câu ôn tập và bấm **"Nộp bài ôn tập & Đánh giá lại năng lực"** $\rightarrow$ Thăng hạng lên Mastery khi vượt qua.
 
-Dự án đi kèm bộ kiểm thử tự động toàn diện:
+---
 
-### A. Kiểm Thử Tích Hợp Toàn Trình (Full Pipeline Test)
-Kiểm tra tự động cả 9 bước từ MarkItDown đến vòng lặp đóng:
+## 5. Hướng Dẫn Kiểm Thử Tự Động
+
 ```bash
+# 1. Kiểm thử tích hợp 9 bước toàn bộ luồng hệ thống với MySQL:
 PYTHONPATH=. python tests/test_full_pipeline.py
-```
-*(Kết quả mong đợi: `🎉 ALL 9 PIPELINE TESTS PASSED 100%! 🎉`)*
 
-### B. Đánh Giá Golden Set (20 Test Cases Theo Rubric R4)
-Đánh giá độ tuân thủ 4 lớp chỗ khó (① Nguồn sự thật, ② Mơ hồ, ③ Ngoài phạm vi, ④ Đặc thù domain):
-```bash
+# 2. Đánh giá 20 test case Golden Set theo rubric 4 lớp chỗ khó:
 PYTHONPATH=. python eval/run_eval.py
 ```
-*(Kết quả mong đợi: `KẾT QUẢ TỔNG HỢP: 20/20 ĐẠT (100.0%)` — Vượt cam kết Quality Bar $\ge 90%$)*
 
 ---
 
-## 6. Cấu Trúc Thư Mục Dự Án
+## 6. Cấu Trúc Thư Mục Sau Khi Nâng Cấp
 
 ```
 K4-3B-E403-T153/
@@ -135,21 +152,34 @@ K4-3B-E403-T153/
 │   │   ├── quiz_generator.py      # Sinh quiz tình huống đời thường có trích dẫn nguồn
 │   │   └── adaptive_engine.py     # Phân loại kết quả & vòng lặp gỡ rối 100% tình huống mới
 │   ├── storage/
-│   │   └── db.py                  # Quản lý trạng thái và các phiên học tập
+│   │   └── mysql_db.py            # Quản lý Database MySQL với SQLAlchemy & PyMySQL
 │   ├── api/
-│   │   └── routes.py              # REST API Giảng viên & Học viên
-│   └── main.py                    # Khởi tạo FastAPI Server & phục vụ Frontend tĩnh
-├── frontend/
-│   └── index.html                 # Giao diện Gamified chuẩn Quiz.com (Web Audio, Confetti)
+│   │   └── routes.py              # REST API kết nối MySQL cho Giảng viên & Học viên
+│   └── main.py                    # FastAPI Server phục vụ API & React Frontend Bundle
+├── frontend/                      # Ứng Dụng React + Vite
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Header.jsx         # Header tím đậm Quiz.com + toggle âm thanh
+│   │   │   ├── TeacherStudio.jsx  # Studio Giảng viên (PDF, MarkItDown, Ràng buộc, Duyệt)
+│   │   │   ├── QuizLobby.jsx      # Sảnh game Quiz.com + chọn Avatar
+│   │   │   ├── QuizPlayer.jsx     # Giao diện chơi game 4 thẻ màu lớn ▲◆●■
+│   │   │   ├── AdaptiveRemediation.jsx # Vòng lặp gỡ rối & quiz tình huống mới 100%
+│   │   │   └── SoundEffects.js    # Web Audio API Arcade Synthesizer
+│   │   ├── App.jsx                # Component React chính
+│   │   ├── index.css              # Theme màu Quiz.com & hiệu ứng 3D arcade
+│   │   └── main.jsx               # Entry point
+│   ├── dist/                      # Production build được phục vụ trực tiếp bởi FastAPI
+│   ├── package.json               # Cấu hình dependencies (React 19, Lucide, Tailwind v4)
+│   └── vite.config.js             # Cấu hình Vite & Tailwind plugin
 ├── scripts/
-│   └── generate_sample_pdf.py     # Script tạo slide PDF 15 trang chuẩn bị sẵn
+│   └── generate_sample_pdf.py     # Script tạo slide PDF mẫu 15 trang
 ├── eval/
 │   ├── golden_set.json            # 20 Test case kiểm thử chuẩn Rubric
-│   ├── run_eval.py                # Script chạy đánh giá hệ thống
-│   └── eval_results.json          # File kết quả đánh giá (100% Đạt)
+│   ├── run_eval.py                # Script chạy đánh giá hệ thống (100% Pass)
+│   └── eval_results.json          # File kết quả đánh giá
 ├── tests/
-│   └── test_full_pipeline.py      # Bộ kiểm thử tích hợp 9 bước
-├── .gitignore                     # Cấu hình bỏ qua .venv, cache và dữ liệu tạm
+│   └── test_full_pipeline.py      # Bộ kiểm thử tích hợp 9 bước (100% Pass)
+├── .gitignore                     # Cấu hình bỏ qua .venv, node_modules, cache
 ├── spec.md                        # Đặc tả AI Spec 8 phần theo chuẩn chương trình
 └── HUONG_DAN_CAI_DAT_VA_CHAY.md   # Tài liệu hướng dẫn này
 ```
