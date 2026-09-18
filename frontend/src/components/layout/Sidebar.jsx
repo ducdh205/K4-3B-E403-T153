@@ -1,10 +1,10 @@
 import React from 'react';
-import { LayoutGrid, BookOpen, User, Settings, Sun, Moon, Sparkles } from 'lucide-react';
+import { BookOpen, UserCheck, User, Settings, Sun, Moon, Sparkles } from 'lucide-react';
 
 export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, onNavigateHome }) {
   const menuItems = [
-    { id: 'stats', label: 'Thống kê', icon: LayoutGrid },
-    { id: 'review', label: 'Ôn tập', icon: BookOpen },
+    { id: 'review', label: 'Ôn tập thích ứng', icon: BookOpen },
+    { id: 'teacher', label: 'Giảng viên Studio', icon: UserCheck },
     { id: 'account', label: 'Tài khoản', icon: User },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
@@ -19,7 +19,7 @@ export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, on
         <div 
           onClick={onNavigateHome}
           className="flex items-center gap-3 px-2 py-3 mb-8 cursor-pointer group"
-          title="Về trang chủ"
+          title="Về trang chủ UTTQ"
         >
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#6366f1] to-[#4338ca] flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
             U
@@ -29,12 +29,12 @@ export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, on
               UTTQ
             </span>
             <span className="block text-[10px] font-semibold text-indigo-500 uppercase tracking-wider">
-              Smart Study AI
+              Adaptive Loop AI
             </span>
           </div>
         </div>
 
-        {/* Navigation items */}
+        {/* Navigation items (Đã loại bỏ Thống kê theo sơ đồ) */}
         <nav className="space-y-1.5">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -55,6 +55,9 @@ export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, on
                 <span>{item.label}</span>
                 {item.id === 'review' && (
                   <span className="ml-auto w-2 h-2 rounded-full bg-indigo-500"></span>
+                )}
+                {item.id === 'teacher' && (
+                  <span className="ml-auto text-[10px] font-bold text-indigo-600 bg-indigo-100 dark:bg-indigo-900 px-1.5 py-0.5 rounded">GĐ 1</span>
                 )}
               </button>
             );
@@ -94,4 +97,3 @@ export default function Sidebar({ currentTab, setCurrentTab, theme, setTheme, on
     </aside>
   );
 }
-
