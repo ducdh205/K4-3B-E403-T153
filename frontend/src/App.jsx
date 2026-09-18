@@ -520,7 +520,7 @@ export default function App() {
                       👑
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">Học viên: Hiền Trang</h3>
+                      <h3 className="text-xl font-bold">Học viên: T153</h3>
                       <p className="text-xs text-gray-400">Khóa K4 AI Thực Chiến • Phòng E403 • Lớp 3B</p>
                       <span className="inline-block mt-1 text-[11px] font-mono text-indigo-500 font-semibold bg-indigo-50 dark:bg-gray-800 px-2.5 py-0.5 rounded-full">
                         Mã: 2A202602362

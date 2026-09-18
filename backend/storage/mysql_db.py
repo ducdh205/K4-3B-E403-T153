@@ -347,5 +347,74 @@ class MySQLDatabase:
         finally:
             session.close()
 
+    def get_mistake_analytics(self) -> Dict[str, Any]:
+        """
+        Sơ đồ luồng Giai đoạn 2:
+        Thống kê các câu/concept bị sai nhiều nhất (Xếp thứ tự từ cao xuống thấp)
+        -> Báo danh sách các phần bị làm sai nhiều nhất cho Giảng viên
+        """
+        session = self.get_session()
+        try:
+            attempts = session.query(StudentAttemptModel).all()
+            quiz = session.query(QuizModel).order_by(QuizModel.created_at.desc()).first()
+            if not quiz:
+                return {
+                    "total_attempts": 0,
+                    "total_wrong_count": 0,
+                    "most_failed_concepts": []
+                }
+
+            q_map = {}
+            for q in quiz.questions:
+                q_key = q.question_code
+                q_map[q_key] = {
+                    "question_id": q_key,
+                    "question_text": q.question_text,
+                    "concept": q.core_concept or f"Khái niệm Slide {q.slide_page}",
+                    "slide_page": q.slide_page,
+                    "citation_code": q.citation_code,
+                    "correct_index": q.correct_index,
+                    "fail_count": 0
+                }
+
+            total_attempts = len(attempts)
+            total_wrong = 0
+            for att in attempts:
+                answers = json.loads(att.answers_json) if att.answers_json else {}
+                for qid, qinfo in q_map.items():
+                    user_ans = answers.get(qid)
+                    if user_ans is None or user_ans != qinfo["correct_index"]:
+                        qinfo["fail_count"] += 1
+                        total_wrong += 1
+
+            # Xếp thứ tự từ cao xuống thấp
+            sorted_fails = sorted(
+                q_map.values(),
+                key=lambda x: x["fail_count"],
+                reverse=True
+            )
+
+            results = []
+            for rank, item in enumerate(sorted_fails, 1):
+                fail_rate = round((item["fail_count"] / total_attempts * 100), 1) if total_attempts > 0 else 0
+                results.append({
+                    "rank": rank,
+                    "question_id": item["question_id"],
+                    "question_text": item["question_text"],
+                    "concept": item["concept"],
+                    "slide_page": item["slide_page"],
+                    "citation_code": item["citation_code"],
+                    "fail_count": item["fail_count"],
+                    "fail_rate": f"{fail_rate}%"
+                })
+
+            return {
+                "total_attempts": total_attempts,
+                "total_wrong_count": total_wrong,
+                "most_failed_concepts": results
+            }
+        finally:
+            session.close()
+
 mysql_db = MySQLDatabase()
 

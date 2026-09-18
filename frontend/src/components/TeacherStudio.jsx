@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Upload, Sparkles, ShieldCheck, CheckCircle2, FileText, AlertTriangle, ArrowRight, Lock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, Sparkles, ShieldCheck, CheckCircle2, FileText, AlertTriangle, ArrowRight, Lock, BarChart3, TrendingUp, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundEffects } from './SoundEffects';
 
@@ -10,6 +10,28 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
   const [scopeSummary, setScopeSummary] = useState(null);
   const [draftQuiz, setDraftQuiz] = useState(null);
   const [verifiedHuman, setVerifiedHuman] = useState(false);
+  const [mistakeAnalytics, setMistakeAnalytics] = useState(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+
+  // Fetch mistake analytics from Stage 2 (Dashed feedback loop)
+  const fetchMistakeAnalytics = async () => {
+    try {
+      setLoadingAnalytics(true);
+      const res = await fetch('/api/lecturer/mistake-analytics');
+      const data = await res.json();
+      if (data.success) {
+        setMistakeAnalytics(data);
+      }
+    } catch (e) {
+      console.warn("Could not load mistake analytics:", e);
+    } finally {
+      setLoadingAnalytics(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMistakeAnalytics();
+  }, []);
 
   // Load sample PDF
   const handleLoadSample = async () => {
@@ -388,6 +410,88 @@ export default function TeacherStudio({ systemStatus, refreshStatus, onQuizPubli
 
         </div>
 
+      </div>
+
+      {/* DASHED LINE FEEDBACK: Mistake Analytics to Lecturer */}
+      <div className="border-2 border-dashed border-purple-500/40 bg-gradient-to-br from-purple-950/40 via-quiz-panel to-quiz-dark rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300">
+              <BarChart3 className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  Đường nét đứt (Dashed Line Loop)
+                </span>
+                <span className="text-xs text-slate-400">Từ Stage 2 gửi ngược về Hộp 4</span>
+              </div>
+              <h3 className="text-lg font-black text-white font-display mt-1">
+                Báo Cáo Giảng Viên: Thống Kê Các Concept Bị Làm Sai Nhiều Nhất
+              </h3>
+            </div>
+          </div>
+
+          <button
+            onClick={fetchMistakeAnalytics}
+            disabled={loadingAnalytics}
+            className="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-quiz-card hover:bg-quiz-border border border-quiz-border text-slate-200 text-xs font-bold flex items-center space-x-2 transition"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingAnalytics ? 'animate-spin' : ''}`} />
+            <span>Làm Mới Số Liệu</span>
+          </button>
+        </div>
+
+        <p className="text-xs text-slate-300 leading-relaxed">
+          Tự động tổng hợp dữ liệu từ các lượt làm bài của học viên, xếp thứ tự từ cao xuống thấp để Giảng viên nắm rõ chỗ hổng kiến thức chung và điều chỉnh bài giảng kịp thời.
+        </p>
+
+        {mistakeAnalytics && mistakeAnalytics.ranked_mistakes && mistakeAnalytics.ranked_mistakes.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+            {mistakeAnalytics.ranked_mistakes.map((item) => (
+              <div
+                key={item.question_code}
+                className="bg-quiz-dark/90 border border-quiz-border rounded-2xl p-3.5 flex items-center justify-between hover:border-purple-500/40 transition"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs ${
+                    item.rank === 1 
+                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' 
+                      : item.rank === 2
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                  }`}>
+                    #{item.rank}
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-white text-xs sm:text-sm">{item.concept}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-quiz-panel text-slate-400 border border-quiz-border">
+                        {item.question_code}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-purple-300 font-mono mt-0.5">
+                      📍 {item.provenance}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-right pl-3">
+                  <span className={`text-xs font-black ${item.fail_rate > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                    {item.fail_rate}%
+                  </span>
+                  <p className="text-[10px] text-slate-500">
+                    {item.fail_count} lần sai
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-6 text-slate-500 text-xs">
+            Chưa có dữ liệu bài làm. Học viên nộp bài sẽ tự động cập nhật báo cáo tại đây.
+          </div>
+        )}
       </div>
 
     </div>

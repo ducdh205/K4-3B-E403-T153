@@ -107,7 +107,27 @@ def run_tests():
     assert retry_res["mastery_achieved"] is True
     print(f"PASS: Completed Adaptive Loop! Mastery achieved: {retry_res['message']}")
 
-    print("\n🎉 ALL 9 PIPELINE TESTS PASSED 100%! 🎉")
+    print("\n=== TEST 10: Lecturer Receives Mistake Analytics (Dashed Feedback Loop) ===")
+    res = client.get("/api/lecturer/mistake-analytics")
+    assert res.status_code == 200
+    analytics = res.json()
+    assert analytics["total_attempts"] >= 2
+    assert analytics["total_wrong_count"] >= 2
+    most_failed = analytics["most_failed_concepts"]
+    assert len(most_failed) > 0
+
+    # Kiểm tra đã xếp thứ tự từ cao xuống thấp
+    counts = [item["fail_count"] for item in most_failed]
+    assert counts == sorted(counts, reverse=True), "Lỗi: Danh sách chưa được xếp thứ tự từ cao xuống thấp!"
+    
+    # Xác nhận các câu bị sai (Q01, Q02) được xếp ở nhóm đầu
+    top_failed_ids = [item["question_id"] for item in most_failed[:2]]
+    assert "Q01" in top_failed_ids or "Q02" in top_failed_ids
+    print(f"PASS: Báo cáo Giảng viên nhận được {len(most_failed)} concepts xếp thứ tự từ cao xuống thấp:")
+    for item in most_failed[:3]:
+        print(f"   [Rank {item['rank']}] {item['concept']} (Slide {item['slide_page']} • {item['citation_code']}): {item['fail_count']} lần sai ({item['fail_rate']})")
+
+    print("\n🎉 ALL 10 PIPELINE TESTS PASSED 100%! 🎉")
 
 if __name__ == "__main__":
     run_tests()

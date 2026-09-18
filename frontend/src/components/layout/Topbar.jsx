@@ -10,7 +10,7 @@ export default function Topbar({ theme, searchQuery, setSearchQuery, onNotificat
       <div>
         <div className="flex items-center gap-2">
           <h2 className={`text-lg font-bold tracking-tight ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            Xin chào Hiền Trang
+            Xin chào T153
           </h2>
           <span className="text-lg">👋</span>
         </div>

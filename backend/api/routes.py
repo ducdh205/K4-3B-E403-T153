@@ -312,3 +312,12 @@ def submit_remediation(req: RemediationSubmitRequest):
     )
 
     return eval_res
+
+@router.get("/lecturer/mistake-analytics")
+def get_mistake_analytics():
+    """
+    SƠ ĐỒ LUỒNG: Báo danh sách các phần bị làm sai nhiều nhất gửi ngược lên Giảng viên
+    - Thống kê các câu/concept bị sai nhiều nhất
+    - Xếp thứ tự từ cao xuống thấp
+    """
+    return mysql_db.get_mistake_analytics()
