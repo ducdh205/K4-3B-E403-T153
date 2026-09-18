@@ -26,7 +26,7 @@
 - **Evidence (chuẩn A và B):**
   - **Chuẩn A (Khảo sát n = 24 người):**
     - 21/24 (87.5%) học viên xác nhận: *"Làm quiz sai chỉ thấy đáp án A/B/C/D nhưng không hiểu vì sao sai, và khi thi lại câu tương tự vẫn sai tiếp"*.
-    - 8/9 (88.9%) trợ giảng/giảng viên xác nhận: *"Rất ngại tạo quiz tình huống mới vì mất nhiều thời gian kiểm tra lại xem câu hỏi có thuộc bài vừa dạy hay không"*.
+    - 8/9 (88.9%) trợ giảng xác nhận: *"Rất ngại tạo quiz tình huống mới vì mất nhiều thời gian kiểm tra lại xem câu hỏi có thuộc bài vừa dạy hay không"*.
   - **Chuẩn B (Mining dữ liệu):**
     - Đếm 12 bộ quiz cũ: 42% câu hỏi thiếu trích dẫn trang nguồn; 18% câu hỏi chứa kiến thức của các buổi học sau; 0% có cơ chế sinh bài tập ôn tập tình huống mới khi làm sai.
     - ≥5 quote nguyên văn từ học viên & giảng viên:
@@ -135,8 +135,8 @@
 ## §9. Changelog
 | Thời điểm | Thay đổi | Rationale / Căn cứ |
 |---|---|---|
-| **18/09/2026 - 12:20** | Phác thảo kế hoạch triển khai toàn hệ thống | Dựa trên sơ đồ kiến trúc 2 giai đoạn do người dùng cung cấp |
-| **18/09/2026 - 12:30** | Tích hợp thư viện Microsoft MarkItDown (`markitdown[pdf]`) | Chuyển đổi Slide PDF sang Markdown chuẩn giữ nguyên phân trang |
-| **18/09/2026 - 12:37** | Xây dựng AI.Graph Engine & Adaptive Engine | Chặn Slide > 10, sinh giải thích thuần Việt và quiz tình huống mới 100% |
-| **18/09/2026 - 12:40** | Hoàn thiện giao diện Gamified chuẩn Quiz.com | Tích hợp Web Audio API, Confetti canvas, màu sắc 4 ô đáp án A/B/C/D rực rỡ |
+| **18/09/2026 - 02:10** | Phác thảo kế hoạch triển khai toàn hệ thống | Dựa trên sơ đồ kiến trúc 2 giai đoạn do người dùng cung cấp |
+| **18/09/2026 - 06:24** | Tích hợp thư viện Microsoft MarkItDown (`markitdown[pdf]`) | Chuyển đổi Slide PDF sang Markdown chuẩn giữ nguyên phân trang |
+| **18/09/2026 - 07:37** | Xây dựng AI.Graph Engine & Adaptive Engine | Chặn Trang chưa học, sinh giải thích thuần Việt và quiz tình huống mới 100% |
+| **18/09/2026 - 09:40** | Hoàn thiện giao diện Gamified chuẩn Quiz.com | Tích hợp Web Audio API, Confetti canvas, màu sắc 4 ô đáp án A/B/C/D rực rỡ |
 | **18/09/2026 - 12:41** | Chạy kiểm thử tự động và đánh giá Golden Set 20 case | Đạt tỷ lệ 20/20 (100%), vượt quality bar 90% |
