@@ -15,7 +15,7 @@ if [ "$1" == "--dev" ]; then
     echo "👉 Tài liệu API Swagger:        http://localhost:8000/docs"
     echo "========================================================="
     
-    PYTHONPATH=. ./.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload &
+    PYTHONPATH=. ./.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir backend &
     (cd frontend && npm run dev) &
     wait
 else
@@ -31,6 +31,6 @@ else
     echo "👉 Tài liệu API Swagger:       http://localhost:8000/docs"
     echo "========================================================="
 
-    PYTHONPATH=. ./.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+    PYTHONPATH=. ./.venv/bin/uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir backend
 fi
 

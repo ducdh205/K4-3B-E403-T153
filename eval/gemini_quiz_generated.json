@@ -1,156 +1,111 @@
 {
-  "model": "gemini-3.1-flash-lite",
+  "model": "gemini-3.5-flash-lite",
   "api_status": "200_OK",
   "questions_generated": [
     {
       "id": "Q01",
       "slide_page": 1,
       "core_concept": "Tư duy sản phẩm lấy người dùng làm trung tâm",
-      "question": "Bạn định mở app giúp chủ quán phở quản lý. Thay vì bắt đầu bằng việc 'tích hợp AI nhận diện khuôn mặt khách hàng', bạn nên bắt đầu bằng điều gì để đúng tư duy sản phẩm?",
+      "question": "Chị Lan mở một quán phở nhỏ ở Hà Nội và muốn dùng phần mềm tính tiền qua mạng Internet để truy cập linh hoạt từ xa khi không có mặt ở quán. Mô hình cung cấp tài nguyên CNTT qua Internet như vậy gọi là gì?",
       "options": [
-        "Tìm hiểu xem chủ quán đang đau đầu nhất vì việc gì (ví dụ: tính tiền nhầm, thiếu nguyên liệu).",
-        "Mua ngay công nghệ AI xịn nhất về cài vào quán rồi tính sau.",
-        "Hỏi các quán phở khác xem họ đang dùng phần mềm gì để bắt chước theo.",
-        "Tập trung thiết kế giao diện app thật đẹp và bắt mắt."
+        "Điện toán đám mây (Cloud Computing)",
+        "Trí tuệ nhân tạo (AI)",
+        "Blockchain phi tập trung",
+        "Công nghệ Web 3.0"
       ],
       "correct_index": 0,
-      "explanation": "Sản phẩm thành công phải bắt đầu từ bài toán thật của người dùng, không phải bắt đầu từ công nghệ. Slide Trang 1 • DEMO-001",
+      "explanation": "Điện toán đám mây (Cloud Computing) là mô hình cung cấp tài nguyên CNTT qua Internet, cho phép truy cập linh hoạt. Căn cứ từ Slide Trang 1 • DEMO-001.",
       "citation_code": "DEMO-001"
     },
     {
       "id": "Q02",
       "slide_page": 2,
       "core_concept": "Khung công việc JTBD không dùng chữ AI",
-      "question": "Một bạn trẻ muốn làm app cho tiệm trà sữa. Cách diễn đạt nào sau đây đúng với khung JTBD (không chứa từ AI hay công nghệ)?",
+      "question": "Anh Nam quản lý chuỗi tiệm trà sữa ở TP.HCM muốn tối ưu hóa phần cứng máy chủ quản lý đơn hàng bằng cách tạo các phiên bản ảo để giảm thiểu số lượng thiết bị vật lý. Công nghệ nào giúp anh Nam thực hiện điều này?",
       "options": [
-        "Giúp chủ quán dùng AI để pha trà sữa nhanh hơn.",
-        "Giúp chủ quán giảm thời gian chờ đợi của khách hàng trong giờ cao điểm.",
-        "Tích hợp thuật toán AI để dự báo lượng trà sữa bán ra.",
-        "Sử dụng công nghệ AI để tự động hóa việc order."
+        "Công nghệ ảo hóa",
+        "Mô hình mạng xã hội",
+        "Công nghệ Web 3.0",
+        "Hệ thống định vị GPS"
       ],
-      "correct_index": 1,
-      "explanation": "JTBD cốt lõi phải tập trung vào công việc người dùng cần hoàn thành, không được nhắc đến tên công nghệ hay từ 'AI'. Slide Trang 2 • DEMO-002",
+      "correct_index": 0,
+      "explanation": "Công nghệ ảo hóa tạo ra phiên bản ảo của tài nguyên bằng phần mềm, giúp tối ưu tài nguyên và giảm số lượng thiết bị. Căn cứ từ Slide Trang 2 • DEMO-002.",
       "citation_code": "DEMO-002"
     },
     {
       "id": "Q03",
       "slide_page": 3,
       "core_concept": "Chuẩn bằng chứng A & B (Mining & Survey)",
-      "question": "Bạn muốn kiểm chứng ý tưởng 'App đặt bánh mì cho dân văn phòng'. Theo chuẩn A, bạn cần làm gì để có bằng chứng xác thực?",
+      "question": "Một tiệm bánh mì ở Đà Nẵng cần chạy đồng thời nhiều hệ điều hành khác nhau trên một máy tính để vừa bán hàng vừa quản lý kho bằng phần cứng tối ưu, hỗ trợ tăng hiệu suất. Giải pháp ảo hóa máy chủ/để bàn nào đáp ứng tốt việc chạy nhiều hệ điều hành này?",
       "options": [
-        "Hỏi 5 người bạn thân xem họ có thích không.",
-        "Khảo sát ít nhất 20 người dùng bên ngoài và ít nhất 50% xác nhận nhu cầu đó là có thật.",
-        "Đọc 10 bài báo trên mạng về xu hướng ăn sáng.",
-        "Tự mình đóng vai người đi mua bánh mì trong 1 ngày."
+        "Oracle VM VirtualBox",
+        "Mô hình IaaS đơn thuần",
+        "Hệ thống lưu trữ đám mây Dropbox",
+        "Tiêu chuẩn bảo mật ISO 27001"
       ],
-      "correct_index": 1,
-      "explanation": "Chuẩn A yêu cầu khảo sát tối thiểu 20 người dùng bên ngoài, với ít nhất 50% xác nhận nhu cầu. Slide Trang 3 • DEMO-003",
+      "correct_index": 0,
+      "explanation": "Oracle VM VirtualBox hỗ trợ ảo hóa máy chủ/để bàn để chạy nhiều hệ điều hành và ảo hóa phần cứng tăng hiệu suất. Căn cứ từ Slide Trang 3 • DEMO-003.",
       "citation_code": "DEMO-003"
     },
     {
       "id": "Q04",
       "slide_page": 4,
       "core_concept": "Lát cắt một câu (4 thành tố sản phẩm)",
-      "question": "Khi thiết kế tính năng cho shop quần áo online, câu nào sau đây thể hiện đúng 'Lát cắt một câu' (4 thành tố)?",
+      "question": "Bạn đang xây dựng một ứng dụng đặt món ăn online cho quán cơm tấm tại Bình Dương và cần thuê hạ tầng ảo cơ bản (như máy chủ ảo AWS EC2) để làm nền tảng triển khai. Mô hình dịch vụ điện toán đám mây này thuộc loại nào?",
       "options": [
-        "Giúp chủ shop quản lý kho hàng bằng AI.",
-        "Giúp chủ shop online tự động phân loại tin nhắn khách hàng để trả lời nhanh hơn.",
-        "Giúp chủ shop online tự động phân loại tin nhắn khách hàng (Quyết định AI) để giảm thời gian phản hồi (Kết quả).",
-        "Giúp chủ shop online (Người dùng) phân loại tin nhắn khách hàng (Công việc) bằng AI (Quyết định AI) để giảm thời gian phản hồi (Kết quả)."
+        "IaaS (Infrastructure as a Service)",
+        "PaaS (Platform as a Service)",
+        "SaaS (Software as a Service)",
+        "Mô hình mạng ngang hàng (Peer-to-peer)"
       ],
-      "correct_index": 3,
-      "explanation": "Công thức 4 thành tố: 1 Người dùng - 1 Công việc - 1 Quyết định AI - 1 Kết quả. Slide Trang 4 • DEMO-004",
+      "correct_index": 0,
+      "explanation": "IaaS (Infrastructure as a Service) cung cấp hạ tầng ảo, ví dụ điển hình là AWS EC2. Căn cứ từ Slide Trang 4 • DEMO-004.",
       "citation_code": "DEMO-004"
     },
     {
       "id": "Q05",
       "slide_page": 5,
       "core_concept": "Chi phí sai sót & Tự động hóa Augment/Automate",
-      "question": "Bạn xây dựng hệ thống AI tự động kê đơn thuốc cho tiệm thuốc tây. Vì chi phí sai sót (Cost of Error) rất cao, bạn nên chọn cách tiếp cận nào?",
+      "question": "Shop thời trang online của chị Mai tại Cần Thơ muốn sử dụng một phần mềm quản lý quan hệ khách hàng (CRM) có sẵn trên đám mây để dễ dùng và tự động cập nhật. Đâu là hạn chế lớn nhất của mô hình dịch vụ đám mây này?",
       "options": [
-        "Automate hoàn toàn để tiết kiệm nhân lực.",
-        "Augment (AI đề xuất, dược sĩ kiểm duyệt) để đảm bảo an toàn.",
-        "Để AI tự quyết định hoàn toàn vì nó nhanh hơn.",
-        "Bỏ qua việc kiểm duyệt để tăng tốc độ bán hàng."
+        "Ít tùy chỉnh và rủi ro về dữ liệu",
+        "Phải tự quản lý và lắp đặt phần cứng vật lý",
+        "Không thể truy cập qua Internet ở mọi nơi",
+        "Chi phí đầu tư ban đầu cực kỳ đắt đỏ"
       ],
-      "correct_index": 1,
-      "explanation": "Khi Cost of Error cao, bắt buộc phải chọn Augment thay vì Automate hoàn toàn. Slide Trang 5 • DEMO-005",
+      "correct_index": 0,
+      "explanation": "SaaS đơn giản nhất nhưng có hạn chế là ít tùy chỉnh và rủi ro dữ liệu. Căn cứ từ Slide Trang 5 • DEMO-005.",
       "citation_code": "DEMO-005"
     },
     {
       "id": "Q06",
       "slide_page": 6,
       "core_concept": "Bốn lớp chỗ khó (Sự thật, Mơ hồ, Thẩm quyền, Domain)",
-      "question": "Một hệ thống AI tư vấn luật cho người bán hàng online tự bịa ra một điều luật không có thật. Đây thuộc lớp rủi ro nào trong 4 lớp chỗ khó?",
+      "question": "Khi nghiên cứu ứng dụng công nghệ Internet thế hệ thứ 3 cho chuỗi cung ứng nông sản sạch tại miền Tây, công nghệ nào sử dụng blockchain và phi tập trung hóa để tăng quyền kiểm soát dữ liệu cho người nông dân?",
       "options": [
-        "Lớp 1: Nguồn sự thật (AI tự bịa thông tin).",
-        "Lớp 2: Sự mơ hồ.",
-        "Lớp 3: Thẩm quyền.",
-        "Lớp 4: Domain kiến thức."
+        "Web 3.0",
+        "Điện toán đám mây truyền thống",
+        "Công nghệ ảo hóa VMware",
+        "Hệ thống máy chủ vật lý đơn lẻ"
       ],
       "correct_index": 0,
-      "explanation": "Lớp 1 (Nguồn sự thật) là khi AI tự bịa thông tin không có trong tài liệu gốc. Slide Trang 6 • DEMO-006",
+      "explanation": "Web 3.0 là Internet thế hệ 3, sử dụng blockchain, AI, phi tập trung hóa để tăng quyền kiểm soát dữ liệu. Căn cứ từ Slide Trang 6 • DEMO-006.",
       "citation_code": "DEMO-006"
     },
     {
       "id": "Q07",
       "slide_page": 7,
       "core_concept": "Ràng buộc phạm vi giảng dạy của Giảng viên",
-      "question": "Trong bài thi đánh giá năng lực, bạn có được phép đưa các kiến thức về 'Lập trình Python nâng cao' vào câu trả lời không?",
+      "question": "Công ty phần mềm của anh Hùng ở Hà Nội muốn triển khai công nghệ ảo hóa của Microsoft để tạo các máy ảo chạy trên nền tảng Windows Server phục vụ cho việc kiểm thử ứng dụng bán hàng. Công nghệ ảo hóa đó tên là gì?",
       "options": [
-        "Có, vì càng biết nhiều càng tốt.",
-        "Không, vì chỉ được phép sử dụng kiến thức trong phạm vi Slide 1 đến 10 đã dạy.",
-        "Có, nếu bạn tìm thấy trên Google.",
-        "Có, nếu bạn tự học thêm ở ngoài."
+        "HyperV",
+        "Oracle VM VirtualBox",
+        "AWS EC2",
+        "Google App Engine"
       ],
-      "correct_index": 1,
-      "explanation": "Giảng viên chỉ định phạm vi kiến thức đã dạy (Slide 1-10), không được vượt quá phạm vi này. Slide Trang 7 • DEMO-007",
+      "correct_index": 0,
+      "explanation": "HyperV là công nghệ ảo hóa của Microsoft, tạo máy ảo trên Windows Server/Windows 10. Căn cứ từ Slide Trang 7 • DEMO-007.",
       "citation_code": "DEMO-007"
-    },
-    {
-      "id": "Q08",
-      "slide_page": 8,
-      "core_concept": "Trích dẫn nguồn chuẩn xác 100% Slide & DEMO",
-      "question": "Khi bạn thực hiện một bài tập về tư duy sản phẩm AI, yêu cầu bắt buộc về trích dẫn nguồn là gì?",
-      "options": [
-        "Chỉ cần ghi tên giảng viên.",
-        "Không cần trích dẫn nếu nội dung đó đúng.",
-        "Mỗi câu trả lời phải kèm tag: Slide Trang X và mã DEMO-NNN tương ứng.",
-        "Chỉ cần ghi số trang là đủ."
-      ],
-      "correct_index": 2,
-      "explanation": "Đảm bảo 100% nội dung có thể truy vết về tài liệu gốc bằng tag chuẩn. Slide Trang 8 • DEMO-008",
-      "citation_code": "DEMO-008"
-    },
-    {
-      "id": "Q09",
-      "slide_page": 9,
-      "core_concept": "Chốt chặn con người kiểm duyệt (Human-in-the-loop)",
-      "question": "Bạn làm AI viết bài quảng cáo cho tiệm bánh mì. Quy trình nào đảm bảo chất lượng tốt nhất trước khi đăng lên Facebook?",
-      "options": [
-        "Để AI tự viết và tự đăng ngay lập tức.",
-        "AI viết bản thảo, chủ tiệm kiểm duyệt và chỉnh sửa trước khi đăng.",
-        "Thuê người viết thay vì dùng AI.",
-        "Để AI tự viết và nhờ khách hàng kiểm duyệt."
-      ],
-      "correct_index": 1,
-      "explanation": "AI chỉ đề xuất bản thảo, con người (giảng viên/chủ tiệm) phải kiểm duyệt trước khi phát hành. Slide Trang 9 • DEMO-009",
-      "citation_code": "DEMO-009"
-    },
-    {
-      "id": "Q10",
-      "slide_page": 10,
-      "core_concept": "Vòng lặp khắc phục lỗ hổng với tình huống mới 100%",
-      "question": "Sau khi làm bài kiểm tra và phát hiện mình trả lời sai về cách dùng AI cho quán phở, bạn nên làm gì để khắc phục?",
-      "options": [
-        "Bỏ qua và làm bài tiếp theo.",
-        "Gỡ rối tức thì bằng cách đọc lại phần giải thích và áp dụng vào một tình huống thực tế mới.",
-        "Học thuộc lòng đáp án đúng.",
-        "Chờ giảng viên giải thích lại toàn bộ bài giảng."
-      ],
-      "correct_index": 1,
-      "explanation": "Phương pháp khắc phục triệt để là gỡ rối tức thì và áp dụng vào tình huống mới. Slide Trang 10 • DEMO-010",
-      "citation_code": "DEMO-010"
     }
   ]
 }

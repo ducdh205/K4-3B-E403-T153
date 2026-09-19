@@ -11,11 +11,20 @@ export default function QuizPracticeView({
   exercise, 
   questions = [], 
   onBack, 
-  onSubmitQuiz 
+  onSubmitQuiz,
+  onRetryFetch
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({}); // { [qId]: optionIndex }
   const [timeLeft, setTimeLeft] = useState(90); // 90 seconds = 1:30
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  // Tự động tải lại đề thi một lần nếu danh sách trống
+  useEffect(() => {
+    if ((!questions || questions.length === 0) && onRetryFetch) {
+      onRetryFetch();
+    }
+  }, []);
 
   // Timer countdown
   useEffect(() => {
@@ -58,6 +67,20 @@ export default function QuizPracticeView({
           >
             Quay lại bài học
           </button>
+          {onRetryFetch && (
+            <button
+              onClick={async () => {
+                setIsRetrying(true);
+                await onRetryFetch();
+                setIsRetrying(false);
+              }}
+              disabled={isRetrying}
+              className="px-5 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>{isRetrying ? "Đang tải đề thi..." : "Tải lại đề thi"}</span>
+            </button>
+          )}
           <button
             onClick={() => {
               window.location.href = '/gv';
@@ -123,10 +146,10 @@ export default function QuizPracticeView({
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="flex items-center gap-2 text-sm font-semibold text-gray-400">
-              <span>{course?.name || "Xác suất thống kê"}</span>
+              <span>{course?.name || "Tư duy sản phẩm AI & Bài học thích ứng"}</span>
               <span>•</span>
               <span className={theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}>
-                {exercise?.title || "Bài tập 1"}
+                {exercise?.title || "Bài đánh giá thích ứng"}
               </span>
             </div>
           </div>

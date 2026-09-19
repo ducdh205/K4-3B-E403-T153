@@ -84,10 +84,10 @@ export default function LandingPageView({ onEnterDashboard, onOpenQuizDirectly, 
               <ArrowRight className="w-4 h-4" />
             </button>
             <button 
-              onClick={onOpenQuizDirectly}
+              onClick={onEnterDashboard}
               className="px-8 py-4 rounded-2xl bg-white hover:bg-gray-50 text-gray-800 text-base font-bold border border-gray-200 shadow-sm transition-all"
             >
-              Thử làm bài tập mẫu
+              Xem danh sách môn học
             </button>
           </div>
 

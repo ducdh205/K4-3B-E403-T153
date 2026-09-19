@@ -8,50 +8,23 @@ export default function SubjectDetailView({
   theme, 
   course, 
   onBack, 
-  onSelectExercise, 
-  onAddExerciseModal 
+  onSelectExercise
 }) {
-  const exercises = course?.exercises || [
+  const exercises = course?.exercises && course.exercises.length > 0 ? course.exercises : [
     {
       id: 1,
-      title: "Bài tập 1: Tư duy sản phẩm lấy người dùng làm trung tâm",
-      time: "Hôm qua",
-      progress: 100,
-      color: "emerald"
-    },
-    {
-      id: 2,
-      title: "Bài tập 2: Khung JTBD & 5 Tiêu chí nghiệm thu",
+      title: `Bài đánh giá năng lực thích ứng: ${course?.name || "Tư duy sản phẩm AI"}`,
       time: "Hôm nay",
-      progress: 36,
-      color: "rose"
-    },
-    {
-      id: 3,
-      title: "Bài tập 3: Lát cắt MỘT CÂU & Phạm vi bài học",
-      time: "21/2/2025",
-      progress: 50,
-      color: "amber"
-    },
-    {
-      id: 4,
-      title: "Bài tập 4: 4 Lớp chỗ khó Taxonomy & Kịch bản lỗi",
-      time: "21/2/2025",
-      progress: 70,
-      color: "indigo"
-    },
-    {
-      id: 5,
-      title: "Bài tập 5: Vòng lặp thích ứng 100% tình huống mới",
-      time: "21/2/2025",
       progress: 0,
-      color: "gray"
+      color: "indigo",
+      total_questions: 5,
+      status: "PUBLISHED"
     }
   ];
 
   return (
     <div className="space-y-6">
-      {/* 1. Header with Back button and Add button */}
+      {/* 1. Header with Back button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button 
@@ -64,19 +37,11 @@ export default function SubjectDetailView({
           </button>
           <div>
             <h2 className={`text-xl font-black tracking-tight ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              {course?.name || "Xác suất thống kê"}
+              {course?.name || "Tư duy sản phẩm AI & Bài học thích ứng"}
             </h2>
-            <span className="text-xs text-gray-400 font-medium">Chi tiết môn học & ngân hàng câu hỏi</span>
+            <span className="text-xs text-gray-400 font-medium">Chi tiết môn học & ngân hàng câu hỏi thích ứng</span>
           </div>
         </div>
-
-        <button
-          onClick={onAddExerciseModal}
-          className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#6366f1] hover:bg-[#4f46e5] text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all hover:scale-105"
-        >
-          <span>Thêm bài tập</span>
-          <Plus className="w-4 h-4" />
-        </button>
       </div>
 
       {/* 2. Main Grid: Left info card & Right exercise list */}
@@ -92,8 +57,8 @@ export default function SubjectDetailView({
                   <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
                 </div>
                 <div>
-                  <div className="text-xs text-indigo-100 font-medium">Chưa xong</div>
-                  <div className="text-lg font-bold">20 câu hỏi</div>
+                  <div className="text-xs text-indigo-100 font-medium">Bộ đề đánh giá</div>
+                  <div className="text-lg font-bold">{exercises.length} bộ đề sẵn sàng</div>
                 </div>
               </div>
 
@@ -102,8 +67,8 @@ export default function SubjectDetailView({
                   <CheckSquare className="w-4 h-4 text-emerald-300" />
                 </div>
                 <div>
-                  <div className="text-xs text-indigo-100 font-medium">Hoàn Thành</div>
-                  <div className="text-lg font-bold">120 câu hỏi</div>
+                  <div className="text-xs text-indigo-100 font-medium">Tài liệu bài giảng</div>
+                  <div className="text-lg font-bold">{course?.total_slides ? `${course.total_slides} trang slide` : "1 tài liệu PDF"}</div>
                 </div>
               </div>
 
@@ -113,7 +78,7 @@ export default function SubjectDetailView({
                 </div>
                 <div>
                   <div className="text-xs text-indigo-100 font-medium">Mã môn học</div>
-                  <div className="text-lg font-mono font-bold tracking-wider">{course?.code || "MTA02"}</div>
+                  <div className="text-lg font-mono font-bold tracking-wider">{course?.code || "PROD-K4"}</div>
                 </div>
               </div>
             </div>

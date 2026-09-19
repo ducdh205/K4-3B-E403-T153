@@ -22,10 +22,10 @@ export default function MethodSelectView({
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2 text-sm font-semibold text-gray-400">
-            <span>{course?.name || "Xác suất thống kê"}</span>
+            <span>{course?.name || "Tư duy sản phẩm AI & Bài học thích ứng"}</span>
             <span>•</span>
             <span className={theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}>
-              {exercise?.title || "Bài tập 1"}
+              {exercise?.title || "Bài đánh giá thích ứng"}
             </span>
           </div>
         </div>

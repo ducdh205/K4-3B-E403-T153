@@ -73,8 +73,8 @@ def run_evaluation():
             kg = graph_engine.build_knowledge_graph(slides, {"min_slide": 1, "max_slide": 10})
             quiz = quiz_gen.generate_draft_quiz(kg)
             eval_res = adaptive.evaluate_quiz_submission(quiz, {})
-            passed = (eval_res["wrong_count"] == 10 and not eval_res["mastery_achieved"])
-            reason = f"Bỏ trống bị đánh dấu {eval_res['wrong_count']} câu cần ôn tập"
+            passed = (eval_res["wrong_count"] == len(quiz["questions"]) and not eval_res["mastery_achieved"])
+            reason = f"Bỏ trống bị đánh dấu {eval_res['wrong_count']}/{len(quiz['questions'])} câu cần ôn tập"
 
         elif cid == "CASE-08":
             kg = graph_engine.build_knowledge_graph(slides, {"min_slide": 1, "max_slide": 10})

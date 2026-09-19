@@ -83,7 +83,7 @@
       "scenario": "Học viên bỏ trống câu trả lời khi nộp bài",
       "status": "PASS",
       "passed": true,
-      "reason": "Bỏ trống bị đánh dấu 10 câu cần ôn tập",
+      "reason": "Bỏ trống bị đánh dấu 7/7 câu cần ôn tập",
       "pass_criteria": "Hệ thống ghi nhận câu chưa làm và đưa vào danh sách cần gỡ rối"
     },
     {

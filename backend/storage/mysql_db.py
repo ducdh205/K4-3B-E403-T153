@@ -2,6 +2,10 @@ import os
 import json
 import datetime
 from typing import Dict, Any, List, Optional
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import pymysql
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, Float, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
@@ -12,6 +16,8 @@ class DocumentModel(Base):
     __tablename__ = "documents"
     id = Column(Integer, primary_key=True, autoincrement=True)
     source_file = Column(String(255), nullable=False)
+    subject_name = Column(String(255), nullable=True)
+    subject_code = Column(String(64), nullable=True)
     total_slides = Column(Integer, default=0)
     structured_markdown = Column(Text, nullable=True)
     raw_markdown = Column(Text, nullable=True)
@@ -32,6 +38,9 @@ class QuizModel(Base):
     __tablename__ = "quizzes"
     id = Column(String(64), primary_key=True)
     title = Column(String(255), nullable=False)
+    subject_name = Column(String(255), nullable=True)
+    subject_code = Column(String(64), nullable=True)
+    source_file = Column(String(255), nullable=True)
     allowed_max_slide = Column(Integer, default=10)
     status = Column(String(32), default="DRAFT")  # DRAFT, PUBLISHED
     total_questions = Column(Integer, default=0)
@@ -101,7 +110,8 @@ class MySQLDatabase:
                 port=self.port,
                 user=self.user,
                 password=self.password,
-                charset='utf8mb4'
+                charset='utf8mb4',
+                connect_timeout=1
             )
             with conn.cursor() as cursor:
                 cursor.execute(f"CREATE DATABASE IF NOT EXISTS `{self.database}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
@@ -123,15 +133,37 @@ class MySQLDatabase:
             self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
             self.is_mysql = False
 
+        # Tự động đồng bộ các cột mới nếu bảng đã tồn tại
+        try:
+            raw_conn = self.engine.raw_connection()
+            cur = raw_conn.cursor()
+            for col, ctype in [("subject_name", "VARCHAR(255)"), ("subject_code", "VARCHAR(64)")]:
+                try:
+                    cur.execute(f"ALTER TABLE documents ADD COLUMN {col} {ctype}")
+                except Exception:
+                    pass
+            for col, ctype in [("subject_name", "VARCHAR(255)"), ("subject_code", "VARCHAR(64)"), ("source_file", "VARCHAR(255)")]:
+                try:
+                    cur.execute(f"ALTER TABLE quizzes ADD COLUMN {col} {ctype}")
+                except Exception:
+                    pass
+            raw_conn.commit()
+            cur.close()
+            raw_conn.close()
+        except Exception:
+            pass
+
     def get_session(self):
         return self.SessionLocal()
 
     # Document APIs
-    def save_document(self, source_file: str, total_slides: int, structured_markdown: str, raw_markdown: str):
+    def save_document(self, source_file: str, total_slides: int, structured_markdown: str, raw_markdown: str, subject_name: Optional[str] = None, subject_code: Optional[str] = None):
         session = self.get_session()
         try:
             doc = DocumentModel(
                 source_file=source_file,
+                subject_name=subject_name,
+                subject_code=subject_code,
                 total_slides=total_slides,
                 structured_markdown=structured_markdown,
                 raw_markdown=raw_markdown
@@ -150,6 +182,8 @@ class MySQLDatabase:
                 return {
                     "id": doc.id,
                     "source_file": doc.source_file,
+                    "subject_name": getattr(doc, "subject_name", None),
+                    "subject_code": getattr(doc, "subject_code", None),
                     "total_slides": doc.total_slides,
                     "structured_markdown": doc.structured_markdown,
                     "raw_markdown": doc.raw_markdown,
@@ -207,6 +241,9 @@ class MySQLDatabase:
             quiz = QuizModel(
                 id=quiz_id,
                 title=quiz_data.get("quiz_title", "Đánh Giá Tư Duy Sản Phẩm AI"),
+                subject_name=quiz_data.get("subject_name"),
+                subject_code=quiz_data.get("subject_code"),
+                source_file=quiz_data.get("source_file"),
                 allowed_max_slide=quiz_data.get("allowed_max_slide", 10),
                 status=quiz_data.get("status", "DRAFT"),
                 total_questions=quiz_data.get("total_questions", len(quiz_data.get("questions", [])))
@@ -265,10 +302,16 @@ class MySQLDatabase:
                     "is_core": q.is_core,
                     "reviewed": q.reviewed
                 })
+            questions.sort(key=lambda x: x["question_index"])
 
             return {
+                "id": quiz.id,
                 "quiz_id": quiz.id,
+                "title": quiz.title,
                 "quiz_title": quiz.title,
+                "subject_name": getattr(quiz, "subject_name", None),
+                "subject_code": getattr(quiz, "subject_code", None),
+                "source_file": getattr(quiz, "source_file", None),
                 "allowed_max_slide": quiz.allowed_max_slide,
                 "status": quiz.status,
                 "total_questions": len(questions),
@@ -471,9 +514,12 @@ class MySQLDatabase:
                     "id": q.id,
                     "quiz_id": q.id,
                     "title": q.title,
+                    "subject_name": getattr(q, "subject_name", None),
+                    "subject_code": getattr(q, "subject_code", None),
+                    "source_file": getattr(q, "source_file", None),
                     "allowed_max_slide": q.allowed_max_slide,
                     "status": q.status,
-                    "total_questions": len(q.questions),
+                    "total_questions": len(q.questions) if q.questions else (q.total_questions or 0),
                     "created_at": q.created_at.strftime("%H:%M %d/%m/%Y") if q.created_at else None,
                     "published_at": q.published_at.strftime("%H:%M %d/%m/%Y") if q.published_at else None,
                 })
@@ -508,10 +554,15 @@ class MySQLDatabase:
                     "is_core": item.is_core,
                     "reviewed": item.reviewed
                 })
+            questions.sort(key=lambda x: int(x["id"].replace("Q", "")) if x["id"].startswith("Q") and x["id"][1:].isdigit() else x["question_index"])
             return {
                 "id": q.id,
                 "quiz_id": q.id,
                 "title": q.title,
+                "quiz_title": q.title,
+                "subject_name": getattr(q, "subject_name", None),
+                "subject_code": getattr(q, "subject_code", None),
+                "source_file": getattr(q, "source_file", None),
                 "allowed_max_slide": q.allowed_max_slide,
                 "status": q.status,
                 "total_questions": len(questions),

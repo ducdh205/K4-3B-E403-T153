@@ -76,15 +76,6 @@ export default function CourseListView({
             <span>{sortOrder === 'newest' ? 'Mới nhất' : 'Theo tên A-Z'}</span>
             <ArrowUpDown className="w-3.5 h-3.5" />
           </button>
-
-          {/* Add Subject button */}
-          <button
-            onClick={onAddCourseModal}
-            className="flex items-center gap-2 px-5 py-2 rounded-full bg-[#6366f1] hover:bg-[#4f46e5] text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all hover:scale-105"
-          >
-            <span>Thêm</span>
-            <Plus className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
@@ -98,71 +89,69 @@ export default function CourseListView({
               theme === 'dark' ? 'text-gray-400 border-gray-800 bg-gray-900/40' : 'text-gray-400 border-gray-100 bg-gray-50/50'
             }`}>
               <th className="py-4 px-6">Tên môn học</th>
-              <th className="py-4 px-6">Số tài liệu đã tải</th>
-              <th className="py-4 px-6 text-right">Action</th>
+              <th className="py-4 px-6">Tài liệu bài giảng</th>
+              <th className="py-4 px-6">Số bài tập đã tạo</th>
+              <th className="py-4 px-6 text-right">Hành động</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
-            {sortedList.map((course) => (
-              <tr
-                key={course.id}
-                onClick={() => onSelectCourse(course)}
-                className={`group cursor-pointer transition-colors ${
-                  theme === 'dark'
-                    ? 'hover:bg-gray-800/60 text-gray-200'
-                    : 'hover:bg-indigo-50/40 text-gray-700'
-                }`}
-              >
-                <td className="py-4 px-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-gray-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                      <BookOpen className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <span className="font-bold block text-sm group-hover:text-indigo-600 transition-colors">
-                        {course.name}
-                      </span>
-                      {course.code && (
-                        <span className="text-[11px] text-gray-400 font-medium">
-                          Mã: {course.code}
+            {sortedList.map((course) => {
+              const exCount = course.exercises ? course.exercises.length : 1;
+              return (
+                <tr
+                  key={course.id}
+                  onClick={() => onSelectCourse(course)}
+                  className={`group cursor-pointer transition-colors ${
+                    theme === 'dark'
+                      ? 'hover:bg-gray-800/60 text-gray-200'
+                      : 'hover:bg-indigo-50/40 text-gray-700'
+                  }`}
+                >
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-gray-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                        <BookOpen className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <span className="font-bold block text-sm group-hover:text-indigo-600 transition-colors">
+                          {course.name}
                         </span>
-                      )}
+                        {course.code && (
+                          <span className="text-[11px] text-gray-400 font-medium">
+                            Mã: {course.code}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </td>
+                  </td>
 
-                <td className="py-4 px-6 text-xs text-gray-500 dark:text-gray-400">
-                  <span className="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 font-medium">
-                    {course.docsCount || 3} tài liệu đã tải
-                  </span>
-                </td>
+                  <td className="py-4 px-6 text-xs text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 font-medium">
+                      {course.docsCount || 1} tài liệu {course.total_slides ? `(${course.total_slides} trang)` : ''}
+                    </span>
+                  </td>
 
-                <td className="py-4 px-6 text-right">
-                  <div className="inline-flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                    <button 
-                      onClick={() => onSelectCourse(course)}
-                      className="p-1.5 rounded-lg hover:bg-indigo-100 dark:hover:bg-gray-700 text-gray-500 hover:text-indigo-600 transition-colors"
-                      title="Chỉnh sửa"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => onDeleteCourse(course.id)}
-                      className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 text-gray-400 hover:text-red-500 transition-colors"
-                      title="Xóa môn học"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => onSelectCourse(course)}
-                      className="p-1.5 rounded-lg text-indigo-600 hover:bg-indigo-50 dark:hover:bg-gray-800"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  <td className="py-4 px-6 text-xs">
+                    <span className="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{exCount} bài tập sẵn sàng</span>
+                    </span>
+                  </td>
+
+                  <td className="py-4 px-6 text-right">
+                    <div className="inline-flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <button 
+                        onClick={() => onSelectCourse(course)}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
+                      >
+                        <span>Vào ôn tập</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 

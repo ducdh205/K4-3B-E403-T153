@@ -4,7 +4,7 @@ import {
   AlertTriangle, ArrowRight, ArrowLeft, Lock, Unlock, BarChart3, 
   TrendingUp, RefreshCw, Edit3, Trash2, X, Save, MessageSquare,
   ChevronRight, Sliders, Check, FolderOpen, Layers, BookOpen,
-  PlusCircle, Eye, EyeOff, HelpCircle, CheckSquare
+  PlusCircle, Eye, EyeOff, HelpCircle, CheckSquare, GraduationCap
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { SoundEffects } from './SoundEffects';
@@ -50,6 +50,10 @@ export default function TeacherStudio({
   // Danh sách tài liệu đã có trong hệ thống
   const [availableDocuments, setAvailableDocuments] = useState([]);
   const [loadingDocList, setLoadingDocList] = useState(false);
+
+  // Môn học liên kết với tài liệu & bài tập sinh viên
+  const [subjectName, setSubjectName] = useState('Tư duy sản phẩm AI & Bài học thích ứng');
+  const [subjectCode, setSubjectCode] = useState('PROD-K4');
 
   // =========================================================================
   // STATE CHO MENU 4: QUẢN LÝ CÁC BÀI ĐÁNH GIÁ ĐÃ DUYỆT
@@ -199,11 +203,21 @@ export default function TeacherStudio({
     setIsConverting(true);
     setUploadError(null);
     setUploadSuccessMsg(null);
+
+    const chosenName = doc.subject_name || doc.title || doc.file_name.replace('.pdf', '');
+    const chosenCode = doc.subject_code || (chosenName.toLowerCase().includes('tmđt') ? 'TMDT-K4' : 'SUB-01');
+    setSubjectName(chosenName);
+    setSubjectCode(chosenCode);
+
     try {
       const res = await fetch('/api/lecturer/select-document', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file_name: doc.file_name })
+        body: JSON.stringify({ 
+          file_name: doc.file_name,
+          subject_name: chosenName,
+          subject_code: chosenCode
+        })
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -213,7 +227,7 @@ export default function TeacherStudio({
           size: doc.file_size || 66311,
           isPreloaded: true
         });
-        setUploadSuccessMsg(`🎉 Đã nạp thành công tài liệu: ${data.file_name} (${data.total_slides} slide).`);
+        setUploadSuccessMsg(`🎉 Đã nạp thành công môn '${chosenName}' (${chosenCode}) - tài liệu: ${data.file_name} (${data.total_slides} slide).`);
         SoundEffects.correct();
         refreshStatus();
         fetchAvailableDocuments();
@@ -242,6 +256,9 @@ export default function TeacherStudio({
       setSelectedFile(file);
       setIsUploadingFile(false);
       SoundEffects.click();
+      const cleanName = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+      setSubjectName(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
+      setSubjectCode('SUB-NEW');
     }, 400);
   };
 
@@ -268,6 +285,12 @@ export default function TeacherStudio({
     if (transcriptText.trim()) {
       formData.append('transcript_text', transcriptText.trim());
     }
+    if (subjectName.trim()) {
+      formData.append('subject_name', subjectName.trim());
+    }
+    if (subjectCode.trim()) {
+      formData.append('subject_code', subjectCode.trim());
+    }
 
     try {
       const res = await fetch('/api/lecturer/upload-pdf', { method: 'POST', body: formData });
@@ -277,7 +300,7 @@ export default function TeacherStudio({
         setMarkdownData(data);
         setScopeSummary(null);
         setConstraintApplied(false);
-        setUploadSuccessMsg(`🎉 Chuyển đổi thành công! Đã trích xuất ${data.total_slides} slide sang Markdown có cấu trúc.`);
+        setUploadSuccessMsg(`🎉 Chuyển đổi thành công! Đã trích xuất ${data.total_slides} slide môn '${subjectName}' sang Markdown có cấu trúc.`);
         SoundEffects.correct();
         refreshStatus();
         fetchAvailableDocuments();
@@ -300,11 +323,15 @@ export default function TeacherStudio({
     setIsConverting(true);
     setUploadError(null);
     setUploadSuccessMsg(null);
+    setSubjectName('Tư duy sản phẩm AI & Bài học thích ứng');
+    setSubjectCode('PROD-K4');
     try {
       const formData = new FormData();
       if (transcriptText.trim()) {
         formData.append('transcript_text', transcriptText.trim());
       }
+      formData.append('subject_name', 'Tư duy sản phẩm AI & Bài học thích ứng');
+      formData.append('subject_code', 'PROD-K4');
       const res = await fetch('/api/lecturer/upload-pdf', { method: 'POST', body: formData });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -392,7 +419,9 @@ export default function TeacherStudio({
         body: JSON.stringify({
           scope_note: scopeNote,
           emphasis_note: emphasisNote,
-          max_questions: Number(maxQuestions) || 10
+          max_questions: Number(maxQuestions) || 10,
+          subject_name: subjectName,
+          subject_code: subjectCode
         })
       });
 
@@ -915,6 +944,44 @@ export default function TeacherStudio({
                 </span>
               </div>
 
+              {/* KHỐI GẮN KẾT THÔNG TIN MÔN HỌC & BÀI TẬP SINH VIÊN */}
+              <div className="p-4 rounded-2xl bg-quiz-dark/90 border border-purple-500/40 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-purple-400" />
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                      Môn học gắn kết (Đồng bộ Sinh viên)
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-purple-300 bg-purple-900/40 px-2.5 py-0.5 rounded-full border border-purple-700/50 font-medium">
+                    Tự động tạo bài tập
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                  <div className="sm:col-span-8 space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-300 block">Tên môn học:</label>
+                    <input
+                      type="text"
+                      value={subjectName}
+                      onChange={(e) => setSubjectName(e.target.value)}
+                      placeholder="VD: Tư duy sản phẩm AI & Bài học thích ứng"
+                      className="w-full px-3 py-2 rounded-xl bg-quiz-panel border border-quiz-border focus:border-purple-500 text-xs text-white placeholder-slate-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+                  <div className="sm:col-span-4 space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-300 block">Mã môn học:</label>
+                    <input
+                      type="text"
+                      value={subjectCode}
+                      onChange={(e) => setSubjectCode(e.target.value)}
+                      placeholder="VD: PROD-K4"
+                      className="w-full px-3 py-2 rounded-xl bg-quiz-panel border border-quiz-border focus:border-purple-500 text-xs font-mono text-purple-300 placeholder-slate-500 focus:outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* KHỐI 1: TÀI LIỆU HIỆN HÀNH ĐANG SỬ DỤNG */}
               {selectedFile && (
                 <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/60 to-indigo-950/50 border border-purple-500/50 space-y-3 shadow-md animate-fadeIn">
@@ -931,9 +998,16 @@ export default function TeacherStudio({
                           <span className="text-[10px] font-mono text-slate-400">
                             {markdownData ? `${markdownData.total_slides} slides` : ''}
                           </span>
+                          <span className="text-[10px] font-bold text-purple-300 bg-purple-900/40 px-2 py-0.5 rounded-md border border-purple-700/50 truncate max-w-[140px]">
+                            {subjectCode}
+                          </span>
                         </div>
                         <div className="text-xs font-mono font-bold text-white truncate mt-1" title={selectedFile.name}>
                           {selectedFile.name}
+                        </div>
+                        <div className="text-[11px] text-purple-200 mt-0.5 flex items-center gap-1.5 truncate">
+                          <GraduationCap className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                          <span className="truncate">{subjectName}</span>
                         </div>
                       </div>
                     </div>
@@ -2212,6 +2286,22 @@ export default function TeacherStudio({
                               <span>Xem câu hỏi</span>
                             </button>
 
+                            {/* Nút Làm thử bài thi ở Giao diện Học viên */}
+                            {isPublished && onNavigateStudentQuiz && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onNavigateStudentQuiz(q.id);
+                                }}
+                                className="py-1.5 px-2.5 rounded-xl text-[11px] font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white flex items-center gap-1 shadow-xs transition"
+                                title="Vào làm bài thi này ở giao diện Học viên"
+                              >
+                                <Sparkles className="w-3 h-3 text-amber-200" />
+                                <span>Làm thi</span>
+                              </button>
+                            )}
+
                             {/* Nút Xóa đề */}
                             <button
                               type="button"
@@ -2378,7 +2468,13 @@ export default function TeacherStudio({
 
                 {(onNavigateStudentQuiz || onNavigateStudent) && (
                   <button
-                    onClick={onNavigateStudentQuiz || onNavigateStudent}
+                    onClick={() => {
+                      if (onNavigateStudentQuiz) {
+                        onNavigateStudentQuiz(selectedQuiz?.id || null);
+                      } else if (onNavigateStudent) {
+                        onNavigateStudent();
+                      }
+                    }}
                     className="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-indigo-500/25 transition hover:scale-[1.02]"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-amber-200" />

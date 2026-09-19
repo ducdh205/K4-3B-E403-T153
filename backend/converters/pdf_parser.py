@@ -6,15 +6,35 @@ from markitdown import MarkItDown
 class SlideParser:
     def __init__(self):
         self.md_converter = MarkItDown()
+        self._cache: Dict[str, Dict[str, Any]] = {}
 
     def convert_pdf_to_markdown(self, pdf_path: str, transcript_text: Optional[str] = None) -> Dict[str, Any]:
         """
         Sử dụng repo MarkItDown để chuyển đổi PDF sang định dạng Markdown chuẩn,
         đồng thời phân tách và đánh số slide cùng mã trích dẫn [DEMO-NNN],
-        kết hợp Transcript lời giảng nếu có.
+        kết hợp Transcript lời giảng nếu có. Có bộ đệm cache tốc độ cao.
         """
         if not os.path.exists(pdf_path):
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
+
+        mtime = os.path.getmtime(pdf_path)
+        cache_key = f"{os.path.abspath(pdf_path)}_{mtime}_{transcript_text or ''}"
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+
+        cache_dir = "data/storage/parsed_cache"
+        os.makedirs(cache_dir, exist_ok=True)
+        import hashlib, json
+        h = hashlib.md5(cache_key.encode('utf-8')).hexdigest()
+        cache_file = os.path.join(cache_dir, f"{h}.json")
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    cached_data = json.load(f)
+                    self._cache[cache_key] = cached_data
+                    return cached_data
+            except Exception:
+                pass
 
         # Gọi MarkItDown
         conversion_result = self.md_converter.convert(pdf_path)
@@ -53,6 +73,14 @@ class SlideParser:
 
         # Phân tách từng trang theo ký tự ngắt trang \x0c hoặc tiêu đề Slide
         raw_pages = raw_text.split('\x0c')
+        if len([p for p in raw_pages if p.strip()]) <= 1:
+            try:
+                from pypdf import PdfReader
+                reader = PdfReader(pdf_path)
+                if len(reader.pages) > 1:
+                    raw_pages = [page.extract_text() or "" for page in reader.pages]
+            except Exception:
+                pass
         slides: List[Dict[str, Any]] = []
 
         formatted_md_parts = []
@@ -116,12 +144,15 @@ class SlideParser:
         with open(target_md_path, "w", encoding="utf-8") as f:
             f.write(full_structured_md)
 
-        # Lưu hoặc sao chép file PDF tương ứng
-        if os.path.abspath(pdf_path) != os.path.abspath(target_pdf_path):
+        # Lưu hoặc sao chép file PDF tương ứng nếu chưa tồn tại
+        if os.path.abspath(pdf_path) != os.path.abspath(target_pdf_path) and not os.path.exists(target_pdf_path):
             import shutil
-            shutil.copyfile(pdf_path, target_pdf_path)
+            try:
+                shutil.copyfile(pdf_path, target_pdf_path)
+            except Exception:
+                pass
 
-        return {
+        res = {
             "source_file": os.path.basename(pdf_path),
             "total_slides": len(slides),
             "slides": slides,
@@ -131,4 +162,11 @@ class SlideParser:
             "saved_md_path": target_md_path,
             "saved_pdf_path": target_pdf_path
         }
+        self._cache[cache_key] = res
+        try:
+            with open(cache_file, "w", encoding="utf-8") as f:
+                json.dump(res, f, ensure_ascii=False)
+        except Exception:
+            pass
+        return res
 

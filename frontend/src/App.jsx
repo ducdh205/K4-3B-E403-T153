@@ -16,6 +16,156 @@ import AddSubjectModal from './components/modals/AddSubjectModal';
 import AddExerciseModal from './components/modals/AddExerciseModal';
 import SoundEffects from './components/SoundEffects';
 
+const INITIAL_COURSES = [
+  {
+    id: 1,
+    name: "Tư duy sản phẩm AI & Bài học thích ứng",
+    code: "PROD-K4",
+    docsCount: 1,
+    total_slides: 15,
+    file_name: "slide-tu-duy-san-pham.pdf",
+    description: "Bài giảng về tư duy phát triển sản phẩm AI, khung JTBD và mô hình thích ứng lỗi sai.",
+    exercises: [
+      {
+        id: "ex_prod_1",
+        quiz_id: "ff881bc8-17fe-4094-b7e3-243d90f8a242",
+        title: "Bộ Đánh Giá Tư Duy Sản Phẩm AI (Thực Chiến)",
+        time: "Vừa cập nhật",
+        progress: 0,
+        color: "indigo",
+        total_questions: 10,
+        status: "PUBLISHED"
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: "Tổng quan Thương mại điện tử (Báo cáo Nhóm 7)",
+    code: "TMDT-K4",
+    docsCount: 1,
+    total_slides: 44,
+    file_name: "TỔNG QUAN TMĐT NHÓM 7.pdf",
+    description: "Nghiên cứu về hệ sinh thái thương mại điện tử, các mô hình B2B, B2C và hành vi người tiêu dùng số.",
+    exercises: [
+      {
+        id: "ex_tmdt_1",
+        quiz_id: null,
+        title: "Đề ôn tập Tổng quan Thương mại điện tử",
+        time: "Sẵn sàng",
+        progress: 0,
+        color: "emerald",
+        total_questions: 10,
+        status: "READY"
+      }
+    ]
+  },
+  {
+    id: 3,
+    name: "Thương mại điện tử - Chương 3 & 4 (Hạ tầng & Thanh toán)",
+    code: "TMDT-0304",
+    docsCount: 1,
+    total_slides: 28,
+    file_name: "Chap3-4.pdf",
+    description: "Chuyên đề về công nghệ thanh toán điện tử, chuỗi cung ứng số và kiến trúc nền tảng giao dịch trực tuyến.",
+    exercises: [
+      {
+        id: "ex_chap_1",
+        quiz_id: null,
+        title: "Bài tập chuyên đề Hạ tầng & Thanh toán TMĐT",
+        time: "Sẵn sàng",
+        progress: 0,
+        color: "indigo",
+        total_questions: 8,
+        status: "READY"
+      }
+    ]
+  },
+  {
+    id: 4,
+    name: "Điện toán đám mây & Hạ tầng Cloud",
+    code: "CLOUD-01",
+    docsCount: 1,
+    total_slides: 20,
+    file_name: "diemtoandammay.pdf",
+    description: "Tổng quan về mô hình dịch vụ IaaS, PaaS, SaaS, kiến trúc ảo hóa và triển khai ứng dụng trên đám mây.",
+    exercises: [
+      {
+        id: "ex_cloud_1",
+        quiz_id: null,
+        title: "Bài đánh giá kiến thức Cloud Computing",
+        time: "Sẵn sàng",
+        progress: 0,
+        color: "sky",
+        total_questions: 10,
+        status: "READY"
+      }
+    ]
+  },
+  {
+    id: 5,
+    name: "Công nghệ Bán dẫn & Vi mạch AI",
+    code: "SEMI-01",
+    docsCount: 1,
+    total_slides: 16,
+    file_name: "chip bán dẫnn.pdf",
+    description: "Tổng quan ngành công nghiệp bán dẫn, quy trình quang khắc và kiến trúc chip tăng tốc trí tuệ nhân tạo.",
+    exercises: [
+      {
+        id: "ex_semi_1",
+        quiz_id: null,
+        title: "Kiểm tra chuyên sâu Công nghệ Bán dẫn",
+        time: "Sẵn sàng",
+        progress: 0,
+        color: "amber",
+        total_questions: 10,
+        status: "READY"
+      }
+    ]
+  },
+  {
+    id: 6,
+    name: "Quản trị Tài chính & Thu Chi Doanh nghiệp",
+    code: "FIN-01",
+    docsCount: 1,
+    total_slides: 12,
+    file_name: "thuchi.pdf",
+    description: "Quy trình kế toán doanh nghiệp, quản lý dòng tiền thu chi và kiểm soát ngân sách.",
+    exercises: [
+      {
+        id: "ex_fin_1",
+        quiz_id: null,
+        title: "Bài tập tình huống Quản trị dòng tiền Thu Chi",
+        time: "Sẵn sàng",
+        progress: 0,
+        color: "emerald",
+        total_questions: 8,
+        status: "READY"
+      }
+    ]
+  },
+  {
+    id: 7,
+    name: "Tài liệu Chuyên đề Scan",
+    code: "SCAN-DOC",
+    docsCount: 1,
+    total_slides: 10,
+    file_name: "scan.pdf",
+    description: "Tài liệu trích xuất từ bản quét chuyên môn phục vụ ôn tập thực hành.",
+    exercises: [
+      {
+        id: "ex_scan_1",
+        quiz_id: null,
+        title: "Đề ôn tập trích xuất tài liệu chuyên môn",
+        time: "Sẵn sàng",
+        progress: 0,
+        color: "purple",
+        total_questions: 5,
+        status: "READY"
+      }
+    ]
+  }
+];
+
 export default function App() {
   // Mode: 'student' | 'teacher' (Backend GV)
   const [portalMode, setPortalMode] = useState(() => {
@@ -46,45 +196,61 @@ export default function App() {
   const [isAddExerciseOpen, setIsAddExerciseOpen] = useState(false);
 
   // Active course & exercise
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [selectedCourse, setSelectedCourse] = useState(INITIAL_COURSES[0]);
+  const [selectedExercise, setSelectedExercise] = useState(INITIAL_COURSES[0].exercises[0]);
 
   // Quiz questions & results
   const [quizQuestions, setQuizQuestions] = useState([]);
+  const [currentQuizId, setCurrentQuizId] = useState(null);
   const [quizResult, setQuizResult] = useState(null);
   const [systemStatus, setSystemStatus] = useState(null);
 
-  // Courses thật dựa trên tài liệu bài giảng
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      name: "Tư duy sản phẩm AI & Bài học thích ứng",
-      code: "PROD-K4",
-      docsCount: 1,
-      description: "Đánh giá và thích ứng dựa trên tài liệu bài giảng và chỉ lệnh của Giảng viên.",
-      exercises: [
-        { id: 1, title: "Bài đánh giá kiến thức AI thích ứng", time: "Hôm nay", progress: 0, color: "indigo" }
-      ]
-    }
-  ]);
+  // Courses thật dựa trên tài liệu bài giảng và CSDL
+  const [courses, setCourses] = useState(INITIAL_COURSES);
+  const [recentCourses, setRecentCourses] = useState([INITIAL_COURSES[0]]);
 
-  const [recentCourses] = useState([courses[0]]);
+  // Fetch danh sách môn học thật từ CSDL và tài liệu bài giảng
+  const fetchStudentCourses = async () => {
+    try {
+      const res = await fetch('/api/student/courses');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.courses && data.courses.length > 0) {
+          setCourses(data.courses);
+          setRecentCourses(data.courses.slice(0, 3));
+          setSelectedCourse(prev => {
+            if (!prev) return data.courses[0];
+            const found = data.courses.find(c => c.id === prev.id || c.code === prev.code);
+            return found || data.courses[0];
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("Chưa tải được danh sách môn học thật:", e);
+    }
+  };
 
   // Fetch backend quiz - CHỈ sử dụng câu hỏi thật được phát hành từ CSDL / Giảng viên
-  const fetchBackendQuiz = async () => {
+  // Fetch backend quiz - CHỈ sử dụng câu hỏi thật được phát hành từ CSDL / Giảng viên
+  const fetchBackendQuiz = async (quizId = null) => {
     try {
-      const res = await fetch('/api/student/current-quiz');
+      const url = quizId ? `/api/student/current-quiz?quiz_id=${quizId}` : '/api/student/current-quiz';
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         if (data && data.is_published && data.questions && data.questions.length > 0) {
           setQuizQuestions(data.questions);
-          return;
+          setCurrentQuizId(data.quiz_id || data.id || null);
+          return true;
         }
       }
     } catch (e) {
       console.warn("Chưa có đề thi được phát hành từ Giảng viên:", e);
     }
     setQuizQuestions([]);
+    setCurrentQuizId(null);
+    return false;
   };
 
   const fetchStatus = async () => {
@@ -100,10 +266,9 @@ export default function App() {
   };
 
   useEffect(() => {
+    fetchStudentCourses();
     fetchBackendQuiz();
     fetchStatus();
-    setSelectedCourse(courses[0]);
-    setSelectedExercise(courses[0].exercises[0]);
 
     const handlePopState = () => {
       const p = window.location.pathname;
@@ -127,20 +292,26 @@ export default function App() {
   // Navigate to Student Portal
   const navigateToStudentPortal = () => {
     SoundEffects.click();
+    fetchStudentCourses();
     window.history.pushState({}, '', '/');
     setPortalMode('student');
   };
 
-  // Chuyển thẳng sang làm bài thi Học viên (với bộ đề mới nhất vừa duyệt)
-  const navigateToStudentQuiz = async () => {
+  // Chuyển thẳng sang làm bài thi Học viên (với bộ đề mới nhất vừa duyệt hoặc targetQuiz)
+  const navigateToStudentQuiz = async (targetQuiz = null) => {
     SoundEffects.click();
-    await fetchBackendQuiz();
+    const quizId = typeof targetQuiz === 'string' ? targetQuiz : (targetQuiz?.id || targetQuiz?.quiz_id || null);
+    await fetchBackendQuiz(quizId);
     window.history.pushState({}, '', '/');
     setPortalMode('student');
     setPage('dashboard');
     setCurrentTab('review');
-    setSelectedCourse(courses[0]);
-    setSelectedExercise(courses[0].exercises[0]);
+    if (courses && courses.length > 0) {
+      setSelectedCourse(courses[0]);
+      if (courses[0].exercises && courses[0].exercises.length > 0) {
+        setSelectedExercise(courses[0].exercises[0]);
+      }
+    }
     setReviewView('quiz');
   };
 
@@ -251,6 +422,7 @@ export default function App() {
           systemStatus={systemStatus}
           fetchStatus={fetchStatus}
           onQuizPublished={() => {
+            fetchStudentCourses();
             fetchBackendQuiz();
             fetchStatus();
             alert("🎉 Đã phát hành Quiz thành công! Học viên có thể vào làm bài ngay tại giao diện ôn tập.");
@@ -266,6 +438,7 @@ export default function App() {
           {/* 2.1 Landing Page */}
           {page === 'landing' && (
             <LandingPageView
+              theme={theme}
               onEnterDashboard={() => {
                 SoundEffects.click();
                 setPage('dashboard');
@@ -276,11 +449,16 @@ export default function App() {
                 SoundEffects.click();
                 setPage('dashboard');
                 setCurrentTab('review');
-                setSelectedCourse(courses[0]);
-                setSelectedExercise(courses[0].exercises[0]);
                 setReviewView('quiz');
               }}
               onEnterTeacherPortal={navigateToTeacherPortal}
+              onStartReview={() => {
+                SoundEffects.click();
+                setPage('dashboard');
+                setCurrentTab('review');
+                setReviewView('courses');
+              }}
+              onNavigateTeacher={navigateToTeacherPortal}
             />
           )}
 
@@ -295,6 +473,12 @@ export default function App() {
                   setCurrentTab(tab);
                   if (tab === 'review') {
                     setReviewView('courses');
+                    if (courses.length > 0) {
+                      setSelectedCourse(courses[0]);
+                      if (courses[0].exercises && courses[0].exercises.length > 0) {
+                        setSelectedExercise(courses[0].exercises[0]);
+                      }
+                    }
                   }
                 }}
                 theme={theme}
@@ -319,7 +503,7 @@ export default function App() {
                     <EvalRunnerView theme={theme} />
                   )}
 
-                  {/* TAB 2: ÔN TẬP THÍCH ỨNG (GIAI ĐOẠN 2: Làm Quiz -> Phân loại -> Gỡ rối -> Mastery) */}
+              {/* TAB 2: ÔN TẬP THÍCH ỨNG (GIAI ĐOẠN 2: Làm Quiz -> Phân loại -> Gỡ rối -> Mastery) */}
               {currentTab === 'review' && (
                 <>
                   {reviewView === 'courses' && (
@@ -330,9 +514,14 @@ export default function App() {
                       onSelectCourse={(c) => {
                         SoundEffects.click();
                         setSelectedCourse(c);
+                        if (c.exercises && c.exercises.length > 0) {
+                          setSelectedExercise(c.exercises[0]);
+                          if (c.exercises[0].quiz_id) {
+                            fetchBackendQuiz(c.exercises[0].quiz_id);
+                          }
+                        }
                         setReviewView('subject_detail');
                       }}
-                      onAddCourseModal={() => setIsAddSubjectOpen(true)}
                       onDeleteCourse={(id) => setCourses(courses.filter(c => c.id !== id))}
                     />
                   )}
@@ -345,9 +534,11 @@ export default function App() {
                       onSelectExercise={(ex) => {
                         SoundEffects.click();
                         setSelectedExercise(ex);
+                        if (ex.quiz_id) {
+                          fetchBackendQuiz(ex.quiz_id);
+                        }
                         setReviewView('method_select');
                       }}
-                      onAddExerciseModal={() => setIsAddExerciseOpen(true)}
                     />
                   )}
 
@@ -357,10 +548,17 @@ export default function App() {
                       course={selectedCourse}
                       exercise={selectedExercise}
                       onBack={() => setReviewView('subject_detail')}
-                      onSelectMethod={(m) => {
+                      onSelectMethod={async (m) => {
                         SoundEffects.click();
                         if (m === 'summary') setReviewView('summary');
-                        if (m === 'quiz') setReviewView('quiz');
+                        if (m === 'quiz') {
+                          if (selectedExercise?.quiz_id) {
+                            await fetchBackendQuiz(selectedExercise.quiz_id);
+                          } else if (!quizQuestions || quizQuestions.length === 0) {
+                            await fetchBackendQuiz();
+                          }
+                          setReviewView('quiz');
+                        }
                         if (m === 'flashcard') setReviewView('flashcard');
                       }}
                     />
@@ -372,7 +570,14 @@ export default function App() {
                       course={selectedCourse}
                       exercise={selectedExercise}
                       onBack={() => setReviewView('method_select')}
-                      onGoToQuiz={() => setReviewView('quiz')}
+                      onGoToQuiz={async () => {
+                        if (selectedExercise?.quiz_id) {
+                          await fetchBackendQuiz(selectedExercise.quiz_id);
+                        } else if (!quizQuestions || quizQuestions.length === 0) {
+                          await fetchBackendQuiz();
+                        }
+                        setReviewView('quiz');
+                      }}
                     />
                   )}
 
@@ -384,6 +589,7 @@ export default function App() {
                       questions={quizQuestions}
                       onBack={() => setReviewView('method_select')}
                       onSubmitQuiz={handleSubmitQuiz}
+                      onRetryFetch={() => fetchBackendQuiz(selectedExercise?.quiz_id || null)}
                     />
                   )}
 
