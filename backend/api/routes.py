@@ -20,6 +20,7 @@ quiz_generator = QuizGenerator()
 adaptive_engine = AdaptiveEngine()
 
 class NoteConstraintRequest(BaseModel):
+    file_name: Optional[str] = None
     lecturer_note: Optional[str] = None
     scope_note: Optional[str] = None       # Ô 1: Nội dung đã học đến đâu
     emphasis_note: Optional[str] = None    # Ô 2: Cần lưu ý và nhấn mạnh ở đâu
@@ -72,6 +73,7 @@ class QuizQuestionRequest(BaseModel):
     core_concept: Optional[str] = "Khái niệm bài dạy"
 
 class GenerateQuizRequest(BaseModel):
+    file_name: Optional[str] = None
     scope_note: Optional[str] = None
     emphasis_note: Optional[str] = None
     max_questions: Optional[int] = None
@@ -275,12 +277,19 @@ def get_available_documents():
         if os.path.exists(p):
             sz = os.path.getsize(p)
             num_slides = 0
+            has_text = False
             try:
                 from pypdf import PdfReader
                 reader = PdfReader(p)
                 num_slides = len(reader.pages)
+                for page in reader.pages[:3]:
+                    txt = page.extract_text() or ""
+                    if len(re.sub(r'[\s\x00-\x1f\x7f-\x9f]+', '', txt)) >= 20:
+                        has_text = True
+                        break
             except Exception:
                 num_slides = 0
+                has_text = False
 
             meta = DEFAULT_TITLE_MAP.get(fname)
             if meta:
@@ -301,7 +310,9 @@ def get_available_documents():
                 "total_slides": num_slides,
                 "file_size": sz,
                 "description": sub_desc,
-                "is_active": (fname == active_filename)
+                "is_active": (fname == active_filename),
+                "has_text_layer": has_text,
+                "is_scanned": not has_text
             })
 
     return {
@@ -394,11 +405,36 @@ def set_constraints(req: NoteConstraintRequest):
     note_parts.append(f"Số câu tối đa: {max_q}")
     combined_raw_note = " | ".join(note_parts)
 
-    sample_path = "data/sample_slides/slide-tu-duy-san-pham.pdf"
-    if not os.path.exists(sample_path):
+    target_path = None
+    req_file = req.file_name.strip() if (req and req.file_name) else None
+    candidates = []
+    if req_file:
+        candidates.extend([
+            os.path.join("data/uploads", req_file),
+            os.path.join("data/sample_slides", req_file),
+            os.path.join("docs", req_file),
+            req_file
+        ])
+    latest_doc = mysql_db.get_latest_document()
+    if latest_doc and latest_doc.get("source_file"):
+        source_name = latest_doc["source_file"]
+        candidates.extend([
+            os.path.join("data/uploads", source_name),
+            os.path.join("data/sample_slides", source_name),
+            os.path.join("docs", source_name),
+            source_name
+        ])
+    candidates.append("data/sample_slides/slide-tu-duy-san-pham.pdf")
+
+    for p in candidates:
+        if os.path.exists(p):
+            target_path = p
+            break
+
+    if not target_path or not os.path.exists(target_path):
         raise HTTPException(status_code=400, detail="Vui lòng nạp PDF trước")
 
-    parsed = slide_parser.convert_pdf_to_markdown(sample_path)
+    parsed = slide_parser.convert_pdf_to_markdown(target_path)
     constraints = graph_engine.parse_lecturer_note(scope_text)
     graph_result = graph_engine.build_knowledge_graph(parsed["slides"], constraints)
 
@@ -474,20 +510,33 @@ def generate_quiz(req: Optional[GenerateQuizRequest] = None):
 
     # Xác định file tài liệu đang kích hoạt
     sample_path = "data/sample_slides/slide-tu-duy-san-pham.pdf"
+    target_path = None
+    req_file = req.file_name.strip() if (req and req.file_name) else None
+    candidates = []
+    if req_file:
+        candidates.extend([
+            os.path.join("data/uploads", req_file),
+            os.path.join("data/sample_slides", req_file),
+            os.path.join("docs", req_file),
+            req_file
+        ])
     latest_doc = mysql_db.get_latest_document()
-    source_name = latest_doc.get("source_file") if latest_doc else "slide-tu-duy-san-pham.pdf"
-    target_path = sample_path
-    for p in [
-        os.path.join("data/uploads", source_name),
-        os.path.join("data/sample_slides", source_name),
-        os.path.join("docs", source_name),
-        sample_path
-    ]:
+    if latest_doc and latest_doc.get("source_file"):
+        source_name = latest_doc["source_file"]
+        candidates.extend([
+            os.path.join("data/uploads", source_name),
+            os.path.join("data/sample_slides", source_name),
+            os.path.join("docs", source_name),
+            source_name
+        ])
+    candidates.append(sample_path)
+
+    for p in candidates:
         if os.path.exists(p):
             target_path = p
             break
 
-    if not os.path.exists(target_path):
+    if not target_path or not os.path.exists(target_path):
         raise HTTPException(status_code=400, detail="Chưa có dữ liệu slide PDF")
 
     parsed = slide_parser.convert_pdf_to_markdown(target_path)

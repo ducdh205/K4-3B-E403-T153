@@ -203,6 +203,10 @@ export default function TeacherStudio({
     setIsConverting(true);
     setUploadError(null);
     setUploadSuccessMsg(null);
+    // Xóa preview cũ ngay lập tức để người dùng thấy trạng thái loading
+    setMarkdownData(null);
+    setScopeSummary(null);
+    setConstraintApplied(false);
 
     const chosenName = doc.subject_name || doc.title || doc.file_name.replace('.pdf', '');
     const chosenCode = doc.subject_code || (chosenName.toLowerCase().includes('tmđt') ? 'TMDT-K4' : 'SUB-01');
@@ -243,35 +247,10 @@ export default function TeacherStudio({
     }
   };
 
-  // 1. Chọn file PDF từ máy
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    SoundEffects.click();
-    setUploadError(null);
-    setUploadSuccessMsg(null);
-    setIsUploadingFile(true);
-
-    setTimeout(() => {
-      setSelectedFile(file);
-      setIsUploadingFile(false);
-      SoundEffects.click();
-      const cleanName = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
-      setSubjectName(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
-      setSubjectCode('SUB-NEW');
-    }, 400);
-  };
-
-  // Hủy file đã chọn
-  const handleRemoveSelectedFile = () => {
-    setSelectedFile(null);
-    setUploadError(null);
-    setUploadSuccessMsg(null);
-  };
-
-  // 2. Submit chuyển đổi từ PDF sang Markdown
-  const handleSubmitConvert = async () => {
-    if (!selectedFile) {
+  // 1 & 2. Tự động tải lên và trích xuất PDF sang Markdown ngay khi chọn file
+  const handleUploadAndConvert = async (fileToUpload = null) => {
+    const file = fileToUpload || selectedFile;
+    if (!file) {
       alert("Vui lòng chọn file PDF trước khi bấm chuyển đổi!");
       return;
     }
@@ -279,18 +258,34 @@ export default function TeacherStudio({
     setIsConverting(true);
     setUploadError(null);
     setUploadSuccessMsg(null);
+    // Xóa dữ liệu preview cũ ngay để bên phải hiển thị hoạt ảnh loading MarkItDown
+    setMarkdownData(null);
+    setScopeSummary(null);
+    setConstraintApplied(false);
+
+    const cleanName = (file.name || 'TaiLieu').replace(/\.pdf$/i, '').replace(/[-_]/g, ' ');
+    const autoSubName = subjectName?.trim() && subjectName !== 'Tư duy sản phẩm AI & Bài học thích ứng'
+      ? subjectName.trim()
+      : (cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
+    const autoSubCode = subjectCode?.trim() && subjectCode !== 'PROD-K4'
+      ? subjectCode.trim()
+      : (autoSubName.length > 5 ? autoSubName.slice(0, 4).toUpperCase() + '-K4' : 'SUB-01');
+
+    setSubjectName(autoSubName);
+    setSubjectCode(autoSubCode);
+    setSelectedFile({
+      name: file.name,
+      size: file.size || 0,
+      isPreloaded: false
+    });
 
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    formData.append('file', file);
     if (transcriptText.trim()) {
       formData.append('transcript_text', transcriptText.trim());
     }
-    if (subjectName.trim()) {
-      formData.append('subject_name', subjectName.trim());
-    }
-    if (subjectCode.trim()) {
-      formData.append('subject_code', subjectCode.trim());
-    }
+    formData.append('subject_name', autoSubName);
+    formData.append('subject_code', autoSubCode);
 
     try {
       const res = await fetch('/api/lecturer/upload-pdf', { method: 'POST', body: formData });
@@ -298,9 +293,14 @@ export default function TeacherStudio({
 
       if (res.ok && data.success) {
         setMarkdownData(data);
-        setScopeSummary(null);
-        setConstraintApplied(false);
-        setUploadSuccessMsg(`🎉 Chuyển đổi thành công! Đã trích xuất ${data.total_slides} slide môn '${subjectName}' sang Markdown có cấu trúc.`);
+        setSelectedFile({
+          name: data.file_name,
+          size: file.size || 1048576,
+          isPreloaded: false
+        });
+        if (data.subject_name) setSubjectName(data.subject_name);
+        if (data.subject_code) setSubjectCode(data.subject_code);
+        setUploadSuccessMsg(`🎉 Chuyển đổi thành công! Đã trích xuất ${data.total_slides} slide môn '${data.subject_name || autoSubName}' sang Markdown có cấu trúc.`);
         SoundEffects.correct();
         refreshStatus();
         fetchAvailableDocuments();
@@ -314,8 +314,27 @@ export default function TeacherStudio({
       setUploadError("Lỗi kết nối máy chủ khi chuyển đổi: " + e.message);
     } finally {
       setIsConverting(false);
+      setIsUploadingFile(false);
     }
   };
+
+  // Chọn file PDF từ máy - Kích hoạt tự động nạp và chuyển đổi tức thì
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    handleUploadAndConvert(file);
+    e.target.value = '';
+  };
+
+  // Hủy file đã chọn
+  const handleRemoveSelectedFile = () => {
+    setSelectedFile(null);
+    setMarkdownData(null);
+    setUploadError(null);
+    setUploadSuccessMsg(null);
+  };
+
+  const handleSubmitConvert = () => handleUploadAndConvert();
 
   // Nạp tài liệu mẫu 15 trang
   const handleLoadSample = async () => {
@@ -323,6 +342,7 @@ export default function TeacherStudio({
     setIsConverting(true);
     setUploadError(null);
     setUploadSuccessMsg(null);
+    setMarkdownData(null);
     setSubjectName('Tư duy sản phẩm AI & Bài học thích ứng');
     setSubjectCode('PROD-K4');
     try {
@@ -364,10 +384,12 @@ export default function TeacherStudio({
     }
     const numQ = Math.max(1, Math.min(20, parseInt(maxQuestions, 10) || 10));
     try {
+      const activeFileName = markdownData?.file_name || selectedFile?.name;
       const res = await fetch('/api/lecturer/set-constraints', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
+          file_name: activeFileName,
           scope_note: scopeNote.trim(),
           emphasis_note: emphasisNote.trim(),
           max_questions: numQ,
@@ -413,10 +435,12 @@ export default function TeacherStudio({
     SoundEffects.click();
     setLoading(true);
     try {
+      const activeFileName = markdownData?.file_name || selectedFile?.name;
       const res = await fetch('/api/lecturer/generate-quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          file_name: activeFileName,
           scope_note: scopeNote,
           emphasis_note: emphasisNote,
           max_questions: Number(maxQuestions) || 10,
@@ -984,29 +1008,39 @@ export default function TeacherStudio({
 
               {/* KHỐI 1: TÀI LIỆU HIỆN HÀNH ĐANG SỬ DỤNG */}
               {selectedFile && (
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/60 to-indigo-950/50 border border-purple-500/50 space-y-3 shadow-md animate-fadeIn">
+                <div className="p-4 rounded-2xl bg-white dark:bg-purple-950/40 border-2 border-purple-400/80 dark:border-purple-500/60 space-y-3 shadow-md animate-fadeIn">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center shrink-0">
-                        <FileText className="w-5 h-5 text-purple-300" />
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0">
+                        {isConverting ? (
+                          <RefreshCw className="w-5 h-5 text-purple-600 dark:text-purple-300 animate-spin" />
+                        ) : (
+                          <FileText className="w-5 h-5 text-purple-600 dark:text-purple-300" />
+                        )}
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                            Đang sử dụng
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+                            isConverting
+                              ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40 animate-pulse'
+                              : 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40'
+                          }`}>
+                            {isConverting ? 'Đang trích xuất...' : 'Đang sử dụng'}
                           </span>
-                          <span className="text-[10px] font-mono text-slate-400">
-                            {markdownData ? `${markdownData.total_slides} slides` : ''}
+                          <span className="text-[10px] font-mono text-slate-600 dark:text-slate-300 font-bold">
+                            {markdownData ? `${markdownData.total_slides} slides` : isConverting ? 'Đang đọc...' : ''}
                           </span>
-                          <span className="text-[10px] font-bold text-purple-300 bg-purple-900/40 px-2 py-0.5 rounded-md border border-purple-700/50 truncate max-w-[140px]">
-                            {subjectCode}
-                          </span>
+                          {subjectCode && (
+                            <span className="text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/40 px-2 py-0.5 rounded-md border border-purple-300 dark:border-purple-700/50 truncate max-w-[140px]">
+                              {subjectCode}
+                            </span>
+                          )}
                         </div>
-                        <div className="text-xs font-mono font-bold text-white truncate mt-1" title={selectedFile.name}>
+                        <div className="text-xs font-mono font-extrabold text-slate-900 dark:text-white truncate mt-1" title={selectedFile.name}>
                           {selectedFile.name}
                         </div>
-                        <div className="text-[11px] text-purple-200 mt-0.5 flex items-center gap-1.5 truncate">
-                          <GraduationCap className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                        <div className="text-[11px] text-purple-700 dark:text-purple-300 font-semibold mt-0.5 flex items-center gap-1.5 truncate">
+                          <GraduationCap className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
                           <span className="truncate">{subjectName}</span>
                         </div>
                       </div>
@@ -1017,7 +1051,7 @@ export default function TeacherStudio({
                         type="button"
                         onClick={handleRemoveSelectedFile}
                         disabled={isConverting}
-                        className="p-2 rounded-xl text-slate-400 hover:text-rose-300 hover:bg-rose-500/20 transition"
+                        className="p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/20 transition"
                         title="Xóa / Hủy file này"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -1025,29 +1059,23 @@ export default function TeacherStudio({
                     )}
                   </div>
 
-                  {/* Nút Submit nếu là file người dùng mới upload từ máy tính chưa convert */}
-                  {!selectedFile.isPreloaded && !markdownData && (
+                  {/* Thanh hiển thị tiến trình trích xuất */}
+                  {isConverting && (
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-purple-100 dark:bg-purple-900/40 border border-purple-300 dark:border-purple-600 text-purple-800 dark:text-purple-200 text-xs font-bold animate-pulse">
+                      <RefreshCw className="w-4 h-4 animate-spin text-purple-600 dark:text-purple-300 shrink-0" />
+                      <span>Đang dùng MarkItDown bóc tách cấu trúc Slide & nội dung...</span>
+                    </div>
+                  )}
+
+                  {/* Nút Submit nếu chưa convert */}
+                  {!markdownData && !isConverting && (
                     <button
                       type="button"
-                      onClick={handleSubmitConvert}
-                      disabled={isConverting}
-                      className={`w-full py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all ${
-                        isConverting
-                          ? 'bg-purple-900/60 text-purple-300 border border-purple-700/50 cursor-wait'
-                          : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-500/25 hover:scale-[1.01]'
-                      }`}
+                      onClick={() => handleUploadAndConvert(selectedFile)}
+                      className="w-full py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-md shadow-purple-500/25 hover:scale-[1.01] transition-all"
                     >
-                      {isConverting ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Đang chuyển đổi PDF sang MD...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4" />
-                          <span>Submit: Chuyển đổi PDF sang Markdown</span>
-                        </>
-                      )}
+                      <Sparkles className="w-4 h-4" />
+                      <span>Bấm để trích xuất PDF sang Markdown</span>
                     </button>
                   )}
                 </div>
@@ -1256,7 +1284,21 @@ export default function TeacherStudio({
                 </div>
 
                 <div className="mt-4 h-[420px] overflow-y-auto bg-quiz-dark p-3.5 rounded-2xl border border-quiz-border font-mono text-[11px] text-slate-300 leading-relaxed">
-                  {markdownData && markdownData.slides && markdownData.slides.length > 0 ? (
+                  {isConverting ? (
+                    <div className="h-full flex flex-col items-center justify-center py-16 text-center space-y-4 animate-fadeIn">
+                      <div className="w-16 h-16 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400">
+                        <RefreshCw className="w-8 h-8 animate-spin text-purple-400" />
+                      </div>
+                      <div className="space-y-2 max-w-sm">
+                        <p className="font-extrabold text-sm text-purple-300">
+                          Đang dùng Microsoft MarkItDown trích xuất...
+                        </p>
+                        <p className="text-xs text-slate-400 leading-relaxed">
+                          Hệ thống đang bóc tách nội dung từng slide, nhận diện cấu trúc và gán mã trích dẫn cho tệp tin: <strong className="text-white block mt-1">{selectedFile?.name || "file PDF"}</strong>
+                        </p>
+                      </div>
+                    </div>
+                  ) : markdownData && markdownData.slides && markdownData.slides.length > 0 ? (
                     <div>
                       {markdownData.slides.map((s) => (
                         <div key={s.page_number} className="mb-3 pb-3 border-b border-quiz-border/60 last:border-b-0">
@@ -1278,7 +1320,7 @@ export default function TeacherStudio({
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center text-slate-500 italic py-12 text-center">
                       <FileText className="w-10 h-10 mb-2 opacity-40 text-purple-400 animate-pulse" />
-                      <p className="font-medium">Đang tải và hiển thị nội dung tài liệu...</p>
+                      <p className="font-medium">Chưa có nội dung trích xuất. Vui lòng nạp file PDF hoặc chọn tài liệu mẫu bên trái.</p>
                     </div>
                   )}
                 </div>

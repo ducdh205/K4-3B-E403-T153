@@ -6,106 +6,87 @@
       "id": "Q01",
       "slide_page": 1,
       "core_concept": "Tư duy sản phẩm lấy người dùng làm trung tâm",
-      "question": "Chị Lan mở một quán phở nhỏ ở Hà Nội và muốn dùng phần mềm tính tiền qua mạng Internet để truy cập linh hoạt từ xa khi không có mặt ở quán. Mô hình cung cấp tài nguyên CNTT qua Internet như vậy gọi là gì?",
+      "question": "Anh Nam mở một quán phở nhỏ ở Hà Nội và muốn thiết kế menu gọi món trên máy tính bảng. Thay vì liệt kê toàn bộ 50 món ăn theo sở thích của mình, anh Nam nên áp dụng tư duy nào để khách hàng chọn món nhanh nhất?",
       "options": [
-        "Điện toán đám mây (Cloud Computing)",
-        "Trí tuệ nhân tạo (AI)",
-        "Blockchain phi tập trung",
-        "Công nghệ Web 3.0"
+        "Lấy thói quen, hành vi và trải nghiệm thực tế của thực khách làm trung tâm để sắp xếp nhóm món ăn hợp lý.",
+        "Sử dụng AI tự động quét danh sách món ăn và sắp xếp ngẫu nhiên theo thuật toán học máy.",
+        "Bắt chước nguyên văn giao diện của các chuỗi nhà hàng quốc tế lớn để trông có vẻ hiện đại.",
+        "Cố gắng nhồi nhét thật nhiều hình ảnh đồ họa động và hiệu ứng chuyển động phức tạp cho bắt mắt."
       ],
       "correct_index": 0,
-      "explanation": "Điện toán đám mây (Cloud Computing) là mô hình cung cấp tài nguyên CNTT qua Internet, cho phép truy cập linh hoạt. Căn cứ từ Slide Trang 1 • DEMO-001.",
+      "explanation": "Tư duy sản phẩm lấy người dùng làm trung tâm đòi hỏi phải thấu hiểu hành vi thực tế của khách hàng thay vì áp đặt chủ quan từ phía người bán. Slide Trang 1 • DEMO-001",
       "citation_code": "DEMO-001"
     },
     {
       "id": "Q02",
       "slide_page": 2,
       "core_concept": "Khung công việc JTBD không dùng chữ AI",
-      "question": "Anh Nam quản lý chuỗi tiệm trà sữa ở TP.HCM muốn tối ưu hóa phần cứng máy chủ quản lý đơn hàng bằng cách tạo các phiên bản ảo để giảm thiểu số lượng thiết bị vật lý. Công nghệ nào giúp anh Nam thực hiện điều này?",
+      "question": "Chị Lan bán trà sữa online đang muốn tìm hiểu lý do thực sự học sinh cấp 3 hay mua trà sữa của quán mình vào lúc 4 giờ chiều. Theo khung công việc phân tích nhu cầu thực tế (JTBD - không dùng các giải pháp công nghệ tự động), chị Lan nên tập trung vào điều gì?",
       "options": [
-        "Công nghệ ảo hóa",
-        "Mô hình mạng xã hội",
-        "Công nghệ Web 3.0",
-        "Hệ thống định vị GPS"
+        "Tìm hiểu 'công việc' (job) mà khách hàng muốn hoàn thành: Cần một thức uống giải khát nhanh chóng và một không gian/năng lượng để trò chuyện cùng bạn bè sau giờ tan học.",
+        "Lập tức tích hợp một mô hình ngôn ngữ lớn (LLM) để trò chuyện tự động với khách hàng qua chatbot.",
+        "Thuê lập trình viên viết một ứng dụng di động độc quyền có tích hợp trí tuệ nhân tạo nhận diện khuôn mặt.",
+        "Cố gắng tìm kiếm một thuật toán tối ưu hóa chi phí nguyên liệu đầu vào bằng công nghệ Deep Learning."
       ],
       "correct_index": 0,
-      "explanation": "Công nghệ ảo hóa tạo ra phiên bản ảo của tài nguyên bằng phần mềm, giúp tối ưu tài nguyên và giảm số lượng thiết bị. Căn cứ từ Slide Trang 2 • DEMO-002.",
+      "explanation": "Khung công việc JTBD tập trung vào bản chất công việc hoặc động lực thực tế mà người dùng muốn hoàn thành trong hoàn cảnh cụ thể. Slide Trang 2 • DEMO-002",
       "citation_code": "DEMO-002"
     },
     {
-      "id": "Q03",
       "slide_page": 3,
       "core_concept": "Chuẩn bằng chứng A & B (Mining & Survey)",
-      "question": "Một tiệm bánh mì ở Đà Nẵng cần chạy đồng thời nhiều hệ điều hành khác nhau trên một máy tính để vừa bán hàng vừa quản lý kho bằng phần cứng tối ưu, hỗ trợ tăng hiệu suất. Giải pháp ảo hóa máy chủ/để bàn nào đáp ứng tốt việc chạy nhiều hệ điều hành này?",
+      "question": "Bác tài xế công nghệ tên Hùng muốn biết vì sao khách hàng hay hủy cuốc xe vào giờ cao điểm tại ngã tư sở. Thay vì chỉ đoán mò dựa trên cảm tính cá nhân, bác Hùng cần thu thập bằng chứng xác thực theo chuẩn Mining & Survey bằng cách nào?",
       "options": [
-        "Oracle VM VirtualBox",
-        "Mô hình IaaS đơn thuần",
-        "Hệ thống lưu trữ đám mây Dropbox",
-        "Tiêu chuẩn bảo mật ISO 27001"
+        "Tiến hành khai thác dữ liệu lịch sử chuyến đi (data mining) kết hợp khảo sát (survey) trực tiếp phản hồi của chính những hành khách hay hủy chuyến.",
+        "Tự suy luận rằng do khách hàng lười biếng và không cần kiểm chứng thêm bất kỳ dữ liệu nào khác.",
+        "Hỏi ý kiến của một vài người hàng xóm không bao giờ đi xe công nghệ.",
+        "Sử dụng một hệ thống tự động sinh ra các giả định ngẫu nhiên mà không cần dữ liệu thực tế."
       ],
       "correct_index": 0,
-      "explanation": "Oracle VM VirtualBox hỗ trợ ảo hóa máy chủ/để bàn để chạy nhiều hệ điều hành và ảo hóa phần cứng tăng hiệu suất. Căn cứ từ Slide Trang 3 • DEMO-003.",
+      "explanation": "Chuẩn bằng chứng A & B đòi hỏi việc kết hợp khai thác dữ liệu (mining) và khảo sát (survey) để có cơ sở thực tế vững chắc. Slide Trang 3 • DEMO-003",
       "citation_code": "DEMO-003"
     },
     {
-      "id": "Q04",
       "slide_page": 4,
       "core_concept": "Lát cắt một câu (4 thành tố sản phẩm)",
-      "question": "Bạn đang xây dựng một ứng dụng đặt món ăn online cho quán cơm tấm tại Bình Dương và cần thuê hạ tầng ảo cơ bản (như máy chủ ảo AWS EC2) để làm nền tảng triển khai. Mô hình dịch vụ điện toán đám mây này thuộc loại nào?",
+      "question": "Tiệm bánh mì của cô Mai chuẩn bị ra mắt một dòng sản phẩm bánh mì kẹp đặc biệt qua ứng dụng đặt món. Khi định hình các thành tố sản phẩm cốt lõi cho dịch vụ mới này, cô Mai cần đảm bảo sự rõ ràng của sản phẩm qua các lát cắt thực tế nào?",
       "options": [
-        "IaaS (Infrastructure as a Service)",
-        "PaaS (Platform as a Service)",
-        "SaaS (Software as a Service)",
-        "Mô hình mạng ngang hàng (Peer-to-peer)"
+        "Làm rõ đối tượng phục vụ, nỗi đau cần giải quyết, giá trị mang lại và hành động trải nghiệm cụ thể của khách hàng.",
+        "Chỉ cần viết tên món ăn thật kêu và phó mặc toàn bộ cho hệ thống quảng cáo tự động.",
+        "Sao chép y nguyên cách làm của mọi cửa hàng khác trên thị trường mà không cần phân tích thành tố.",
+        "Tập trung vào việc cài đặt các công nghệ AI phức tạp phía sau mà quên mất trải nghiệm của thực khách."
       ],
       "correct_index": 0,
-      "explanation": "IaaS (Infrastructure as a Service) cung cấp hạ tầng ảo, ví dụ điển hình là AWS EC2. Căn cứ từ Slide Trang 4 • DEMO-004.",
+      "explanation": "Việc phân chia và làm rõ các thành tố sản phẩm giúp định hình chính xác giá trị và cách thức hoạt động của sản phẩm. Slide Trang 4 • DEMO-004",
       "citation_code": "DEMO-004"
     },
     {
-      "id": "Q05",
       "slide_page": 5,
       "core_concept": "Chi phí sai sót & Tự động hóa Augment/Automate",
-      "question": "Shop thời trang online của chị Mai tại Cần Thơ muốn sử dụng một phần mềm quản lý quan hệ khách hàng (CRM) có sẵn trên đám mây để dễ dùng và tự động cập nhật. Đâu là hạn chế lớn nhất của mô hình dịch vụ đám mây này?",
+      "question": "Một xưởng may áo dài truyền thống tại Hội An đang cân nhắc tự động hóa khâu kiểm tra lỗi vải bằng máy quét tự động hay giữ lại thợ kiểm tra thủ công. Khi nào xưởng nên chọn phương án tự động hóa (Automate) thay vì hỗ trợ tăng cường (Augment)?",
       "options": [
-        "Ít tùy chỉnh và rủi ro về dữ liệu",
-        "Phải tự quản lý và lắp đặt phần cứng vật lý",
-        "Không thể truy cập qua Internet ở mọi nơi",
-        "Chi phí đầu tư ban đầu cực kỳ đắt đỏ"
+        "Khi chi phí của một sai sót do con người gây ra cực kỳ cao, tác vụ lặp đi lặp lại đơn giản và máy móc có độ chính xác tuyệt đối vượt trội hơn.",
+        "Khi chủ xưởng muốn ứng dụng công nghệ cho bằng bạn bằng bè dù chi phí đầu tư cao gấp mười lần lợi nhuận.",
+        "Khi quy trình may mặc thay đổi liên tục từng phút và đòi hỏi sự thấu cảm nghệ thuật tinh tế của con người.",
+        "Khi không muốn có bất kỳ sự tham gia nào của con người vào toàn bộ chuỗi cung ứng sản phẩm."
       ],
       "correct_index": 0,
-      "explanation": "SaaS đơn giản nhất nhưng có hạn chế là ít tùy chỉnh và rủi ro dữ liệu. Căn cứ từ Slide Trang 5 • DEMO-005.",
+      "explanation": "Quyết định tự động hóa phụ thuộc vào việc cân nhắc chi phí sai sót và tính chất công việc lặp lại, nơi máy móc tối ưu hơn con người. Slide Trang 5 • DEMO-005",
       "citation_code": "DEMO-005"
     },
     {
-      "id": "Q06",
       "slide_page": 6,
       "core_concept": "Bốn lớp chỗ khó (Sự thật, Mơ hồ, Thẩm quyền, Domain)",
-      "question": "Khi nghiên cứu ứng dụng công nghệ Internet thế hệ thứ 3 cho chuỗi cung ứng nông sản sạch tại miền Tây, công nghệ nào sử dụng blockchain và phi tập trung hóa để tăng quyền kiểm soát dữ liệu cho người nông dân?",
+      "question": "Chị Thảo quản lý một chuỗi cửa hàng tiện lợi tại TP.HCM đang gặp tình trạng doanh thu giảm ở chi nhánh quận 7 nhưng chưa rõ nguyên nhân. Khi phân tích bài toán này qua bốn lớp chỗ khó (Sự thật, Mơ hồ, Thẩm quyền, Domain), khó khăn lớn nhất thuộc về lớp nào nếu dữ liệu bán hàng mâu thuẫn với báo cáo nhân sự?",
       "options": [
-        "Web 3.0",
-        "Điện toán đám mây truyền thống",
-        "Công nghệ ảo hóa VMware",
-        "Hệ thống máy chủ vật lý đơn lẻ"
+        "Lớp Sự thật và Lớp Mơ hồ khi dữ liệu thực tế và thông tin phản hồi chưa rõ ràng, đòi hỏi phải đào sâu bóc tách bản chất vấn đề.",
+        "Lớp Thẩm quyền vì giám đốc chưa ký giấy phép cho nghỉ việc nhân viên.",
+        "Lớp Domain vì hệ thống thanh toán điện tử không liên quan đến việc bán hàng.",
+        "Lớp công nghệ AI vì chưa cài đặt đủ các mô hình học máy hiện đại nhất."
       ],
       "correct_index": 0,
-      "explanation": "Web 3.0 là Internet thế hệ 3, sử dụng blockchain, AI, phi tập trung hóa để tăng quyền kiểm soát dữ liệu. Căn cứ từ Slide Trang 6 • DEMO-006.",
+      "explanation": "Bốn lớp chỗ khó giúp nhận diện các điểm nghẽn từ sự thật dữ liệu và sự mơ hồ của tình huống thực tế cần giải quyết. Slide Trang 6 • DEMO-006",
       "citation_code": "DEMO-006"
-    },
-    {
-      "id": "Q07",
-      "slide_page": 7,
-      "core_concept": "Ràng buộc phạm vi giảng dạy của Giảng viên",
-      "question": "Công ty phần mềm của anh Hùng ở Hà Nội muốn triển khai công nghệ ảo hóa của Microsoft để tạo các máy ảo chạy trên nền tảng Windows Server phục vụ cho việc kiểm thử ứng dụng bán hàng. Công nghệ ảo hóa đó tên là gì?",
-      "options": [
-        "HyperV",
-        "Oracle VM VirtualBox",
-        "AWS EC2",
-        "Google App Engine"
-      ],
-      "correct_index": 0,
-      "explanation": "HyperV là công nghệ ảo hóa của Microsoft, tạo máy ảo trên Windows Server/Windows 10. Căn cứ từ Slide Trang 7 • DEMO-007.",
-      "citation_code": "DEMO-007"
     }
   ]
 }
